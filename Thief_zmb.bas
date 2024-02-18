@@ -1,4 +1,4 @@
-    1 REM \::THIEF\::
+    1 REM \::\{18}\{1}T\{20}\{1}H\{20}\{0}I\{20}\{1}E\{20}\{0}F\{18}\{0}\::
     2 REM Ryan Gray 18 April 1990
     4 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
     5 GO SUB 8500
@@ -97,8 +97,9 @@
  1095 PRINT AT r+1,c-2;" ": BEEP .01,0: LET a$(r+1,c-1)=" "
  1096 GO TO 1020
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
- 2001 SOUND 13,0
- 2010 CLS 
+ 2001 CLS 
+ 2010 INPUT "Repeat level? [N] ";f$
+ 2012 IF f$="y" OR f$="Y" THEN GO TO 7002
  2020 PRINT AT 10,0;"Load the next level by starting the cassette player"
  2021 PRINT AT 12,14; FLASH 1;"NOW"
  2030 LOAD "" DATA A$()
@@ -194,9 +195,11 @@
  8550 PLOT 185,95: DRAW 9,67: DRAW 22,-2
  8551 PLOT 190,140: DRAW 14,4
  8555 BORDER 5
- 8556 PLOT 0,34: DRAW 255,0: DRAW 0,141: DRAW -255,0: DRAW 0,-141
- 8559 INK 0
- 8560 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
+ 8556 INK 0
+ 8558 RETURN 
+ 8560 INK 2
+ 8565 PLOT 0,34: DRAW 255,0: DRAW 0,141: DRAW -255,0: DRAW 0,-141
+ 8570 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
  8598 INK 0
  8599 RETURN 
  8999 REM UDG's
@@ -218,6 +221,7 @@
  9060 LET g=g+1
  9070 NEXT i
  9080 NEXT h
+ 9082 GO SUB 8560
  9085 SOUND 10,16;4,20;5,10
  9090 GO TO 508
  9159 REM UDG's
