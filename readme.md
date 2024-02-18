@@ -53,15 +53,15 @@ getting to the next treasure.
 
 The keys (which the program neglects to tell you) are:
 
-a - move up
-z - move down/drop
-k - move left
-l - move right
-n - dig left
-m - dig right
-c - fill hole left, face left
-x - fill hold right, face right
-d - die (when you get trapped)
+    a - move up
+    z - move down/drop
+    k - move left
+    l - move right
+    n - dig left
+    m - dig right
+    c - fill hole left, face left
+    x - fill hold right, face right
+    d - die (when you get trapped)
 
 
 ## Levels
@@ -82,23 +82,26 @@ save it to tape. You can also load an existing level from tape to start with.
 
 ### Level Editor Keys
 
-a - move up
-z - move down/drop
-k - move left
-l - move right
-- Place textured brick
-- Place fake brick
-- Place solid brick
-- Place treasure
-- Place ladder
-- Place overhead bar
-- Clear space
-- Set player start location
-- Load a level
-- Save a level
-- Play level?
+    a - move up
+    z - move down/drop
+    k - move left
+    l - move right
+    1 - Place textured brick
+    2 - Place fake brick (shows as grey block in editor)
+    3 - Place solid brick
+    4 - Place ladder
+    5 - Set player start location
+    6 - Place treasure
+    7 - Place overhead bar
+    space - Clear cell
+    g - Get (load) a level
+    s - Save a level
+
+After saving the level, it will ask if you want to edit another. If you don't,
+then it asks if you want to play the level. It doesn't let you go back to 
+editing after that though.
 
 ### Level Data Storage
 
-The level is stored as a string array, `a$`, with dimensions of 22? rows and 32
+The level is stored as a string array, `a$`, with dimensions of 22 rows and 32
 columns. The last row is where level info is stored.
