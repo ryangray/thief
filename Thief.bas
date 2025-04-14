@@ -51,7 +51,7 @@
   930 GO TO 2039
   999 REM MAIN LOOP
  1000 DIM b$(21,32): FOR z=1 TO 21: LET b$(z)=a$(z): BEEP .001,z+14: NEXT z
- 1001 FOR z=1 TO 21: LET a$(z)=b$(z): PRINT AT z,0;b$(z): BEEP .001,21-z+14: NEXT z
+ 1001 GO SUB 5000: GO TO 1002: FOR z=1 TO 21: LET a$(z)=b$(z): PRINT AT z,0;b$(z): BEEP .001,21-z+14: NEXT z
  1002 LET ti=20*CODE a$(22,3)
  1003 POKE 23672,0: POKE 23673,0
  1004 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
@@ -97,9 +97,8 @@
  1095 PRINT AT r+1,c-2;" ": BEEP .01,0: LET a$(r+1,c-1)=" "
  1096 GO TO 1020
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
- 2001 CLS 
- 2010 INPUT "Repeat level? [N] ";f$
- 2012 IF f$="y" OR f$="Y" THEN GO TO 7002
+ 2001 SOUND 13,0
+ 2010 CLS 
  2020 PRINT AT 10,0;"Load the next level by starting the cassette player"
  2021 PRINT AT 12,14; FLASH 1;"NOW"
  2030 LOAD "" DATA A$()
@@ -123,6 +122,23 @@
  2125 PRINT AT r+1,c-2;"\d": BEEP .01,0: PAUSE 10
  2126 PRINT AT r+1,c-2;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
  2130 GO TO 1020
+ 5000 REM Coloring
+ 5001 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s SPECTRUM PLAY 
+ 5002 DIM o$(165)
+ 5003 REM 123456789012345678901
+ 5004 LET o$(146)=CHR$ 5: LET o$(149)=CHR$ 5: LET o$(151)=CHR$ 2
+ 5005 LET o$(153)=CHR$ 6: LET o$(154)=CHR$ 4: LET o$(163)=CHR$ 2
+ 5006 LET o$(164)=CHR$ 2: LET o$(32)=CHR$ 7: LET o$(143)=CHR$ 2
+ 5010 INK 8: PAPER 0: BORDER 0
+ 5012 CLS : PRINT AT 1,0;
+ 5020 FOR r=1 TO 21
+ 5022 LET a$(r)=b$(r)
+ 5023 BEEP .001,35-r
+ 5024 FOR c=1 TO 32
+ 5030 LET k$=b$(r,c)
+ 5040 PRINT INK CODE o$(CODE k$);k$;
+ 5050 NEXT c: NEXT r
+ 5090 RETURN 
  6000 REM PUT EDITOR HERE
  6010 DIM a$(22,32)
  6012 LET a$(22,1 TO 2)=CHR$ 10+CHR$ 15
@@ -195,11 +211,9 @@
  8550 PLOT 185,95: DRAW 9,67: DRAW 22,-2
  8551 PLOT 190,140: DRAW 14,4
  8555 BORDER 5
- 8556 INK 0
- 8558 RETURN 
- 8560 INK 2
- 8565 PLOT 0,34: DRAW 255,0: DRAW 0,141: DRAW -255,0: DRAW 0,-141
- 8570 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
+ 8556 PLOT 0,34: DRAW 255,0: DRAW 0,141: DRAW -255,0: DRAW 0,-141
+ 8559 INK 0
+ 8560 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
  8598 INK 0
  8599 RETURN 
  8999 REM UDG's
@@ -221,7 +235,6 @@
  9060 LET g=g+1
  9070 NEXT i
  9080 NEXT h
- 9082 GO SUB 8560
  9085 SOUND 10,16;4,20;5,10
  9090 GO TO 508
  9159 REM UDG's
