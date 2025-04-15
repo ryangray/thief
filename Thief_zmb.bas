@@ -1,6 +1,6 @@
     1 REM \::\{18}\{1}T\{20}\{1}H\{20}\{0}I\{20}\{1}E\{20}\{0}F\{18}\{0}\::
     2 REM Ryan Gray 18 April 1990
-    3 REM Updated 2025
+    3 REM v1.1 Feb 2024, v1.2 April 2025
 #
 # Variables
 # ---------
@@ -33,7 +33,7 @@
 #
     4 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
     5 DEF FN x(x$)=PEEK 23563+256*PEEK 23564: REM DEFADD reuse
-    6 DEF FN v(x$)=PEEK(FN x(x$)+4)+256*PEEK(FN x(x$)+5): REM addr of x$
+    6 DEF FN v(x$)=PEEK (FN x(x$)+4)+256*PEEK (FN x(x$)+5): REM addr of x$
     7 DEF FN d(x$,y$)=PEEK 23563+256*PEEK 23564: REM DEFADD copying
    10 GO SUB 8500: REM Title screen
    19 GO TO 508
@@ -63,7 +63,7 @@
   501 POKE 23658,0: REM Caps lock off
   506 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
   507 GO TO 9000
-  508 PRINT AT 14,8;"\ :P\: lay game   ";AT 16,8;"\ :C\: reate levels"
+  508 PRINT AT 14,8;"\ :P\: lay game   ";AT 16,8;"\ :C\: reate levels": PRINT AT 14,9; INVERSE 1; FLASH 1;"P";AT 16,9; INVERSE 0;"C"
   509 PRINT AT 12,9;" - CHOOSE -  "
   510 SOUND 6,31;7,28;10,12
   511 FOR b=13 TO 0 STEP -1: SOUND 10,b
@@ -85,7 +85,7 @@
   628 POKE 23563,dl: POKE 23564,dh: REM Set DEFADD
   630 LET x$=y$: REM Copy data
   632 POKE 23563,0: POKE 23564,0: REM Reset DEFADD
-  639 RETURN
+  639 RETURN 
 # Load first level
   900 CLS : PRINT AT 10,0;"Load the first level from tape  by starting the cassette player"
   901 PRINT AT 13,14; FLASH 1;"NOW"
@@ -94,7 +94,7 @@
   910 LOAD "" DATA A$()
   912 CLS 
   915 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
-  916 IF a$(22,32)=" " THEN GO SUB 5100 
+  916 IF a$(22,32)=" " THEN GO SUB 5100
   920 LET q=3: LET sc=0: LET l=1
   930 GO TO 2039
   999 REM MAIN LOOP
@@ -109,7 +109,7 @@
  1004 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
  1005 PRINT AT 0,23; INK 1;"\o"; INK 3;"\p"; INK 2;"\q"; INK 4;"\r"; INK 5;"\s"
  1006 LET r=CODE a$(22,1): LET c=CODE a$(22,2): LET m=0: LET d=1
- 1007 PRINT AT 0,0;"SCORE:";INK bf;sc;AT 0,28;ti;AT 0,10;INK fg;"LEVEL:";INK bf;l;AT 0,18;"\a\a\a"( TO q)
+ 1007 PRINT AT 0,0;"SCORE:"; INK bf;sc;AT 0,28;ti;AT 0,10; INK fg;"LEVEL:"; INK bf;l;AT 0,18;"\a\a\a"( TO q)
  1008 LET x=r: LET y=c: LET xd=d: LET a$(r,c)=" "
 # Top of main loop
  1020 LET m$="\m\a\l\i"(d): LET n$=a$(r+1,c)
@@ -117,7 +117,7 @@
  1023 LET te=INT (PEEK 23672/64)+4*PEEK 23673
 # Scaling the clock by dividing FRAMES by 64 (60 frames=1 second) to give
 # 20 seconds per treasure.
- 1024 PRINT AT r,c-1;INK 8;m$;AT 0,28;ti-te;" "
+ 1024 PRINT AT r,c-1; INK 8;m$;AT 0,28;ti-te;" "
  1025 SOUND 12,ti-te
  1026 IF te=ti THEN GO TO 7000: REM Time expired
  1030 IF a$(r+1,c)<>"\k" AND a$(r+1,c)<>" " AND a$(r+1,c)<>"\f" AND a$(r+1,c)<>"\j" THEN GO TO 1040
@@ -194,9 +194,6 @@
  5020 FOR r=1 TO 21
  5022 LET b$(r)=a$(r)
  5023 BEEP .001,35-r
-# 5024 FOR c=1 TO 32
-# 5040 PRINT INK p(r,c);b$(r,c);
-# 5050 NEXT c: NEXT r
  5024 PRINT AT r,0;a$(r)
  5025 NEXT r
  5030 GO SUB 600
@@ -214,9 +211,9 @@
  5120 FOR c=1 TO 32
  5122 LET i=CODE o$(CODE a$(r,c))
  5130 LET p(r,c)=i
- 5132 LET a$(r+22,c)=CHR$(i+8*bg)
+ 5132 LET a$(r+22,c)=CHR$ (i+8*bg)
  5140 NEXT c: NEXT r
- 5150 CLS
+ 5150 CLS 
  5190 RETURN 
  6000 REM LEVEL EDITOR
  6010 DIM a$(43,32): DIM p(21,32)
@@ -225,27 +222,27 @@
  6014 CLS : PRINT #0;"WAIT..."
  6015 LET m1=CODE a$(22,1): LET m2=CODE a$(22,2): LET a$(m1,m2)="\i"
  6016 FOR a=1 TO 21: FOR b=1 TO 32: LET k$=a$(a,b)
- 6017 PRINT AT a,b-1;INK p(a,b);(k$ AND k$<>"\f");("\u" AND k$="\f")
+ 6017 PRINT AT a,b-1; INK p(a,b);(k$ AND k$<>"\f");("\u" AND k$="\f")
  6018 NEXT b: NEXT a
  6019 BORDER 6
  6020 LET r=1: LET c=1
  6021 INPUT "": PRINT #0;"1\c 2\u 3\:: 4\h 5\i 6\j 7 \k  Save Get"
- 6030 PRINT AT r,c-1; FLASH 1;INK 8;a$(r,c)
+ 6030 PRINT AT r,c-1; FLASH 1; INK 8;a$(r,c)
  6040 LET k$=INKEY$
  6041 IF k$>"0" AND k$<"8" THEN GO TO 6100
- 6042 IF k$=" " AND a$(r,c)<>"\i" THEN LET a$(r,c)=k$: LET i=CODE o$(32): LET p(r,c)=i: LET a$(22+r,c)=CHR$(i+8*bg)
+ 6042 IF k$=" " AND a$(r,c)<>"\i" THEN LET a$(r,c)=k$: LET i=CODE o$(32): LET p(r,c)=i: LET a$(22+r,c)=CHR$ (i+8*bg)
  6043 IF k$="s" THEN GO TO 6200
  6044 IF k$="g" THEN GO TO 6400
  6045 IF k$<>"a" AND k$<>"z" AND k$<>"l" AND k$<>"k" THEN GO TO 6040
  6050 LET x=r: LET y=c: LET r=r+(k$="z" AND r<21)-(k$="a" AND r>1): LET c=c+(k$="l" AND c<32)-(k$="k" AND c>1)
- 6060 PRINT AT x,y-1;INK p(x,y);a$(x,y)
- 6061 IF a$(x,y)="\f" THEN PRINT AT x,y-1;INK p(x,y);"\u"
+ 6060 PRINT AT x,y-1; INK p(x,y);a$(x,y)
+ 6061 IF a$(x,y)="\f" THEN PRINT AT x,y-1; INK p(x,y);"\u"
  6070 GO TO 6030
  6100 LET a$(r,c)=("\::" AND k$="3")+("\c" AND k$="1")+("\f" AND k$="2")+("\h" AND k$="4")+("\i" AND k$="5")+("\j" AND k$="6")+("\k" AND k$="7")
  6110 IF k$="5" THEN LET a$(m1,m2)=" ": PRINT AT m1,m2-1;" ": LET m1=r: LET m2=c: LET a$(22,1 TO 2)=CHR$ m1+CHR$ m2: LET a$(r,c)="\i"
  6112 LET i$=a$(r,c): LET i=CODE o$(CODE i$)
- 6114 LET p(r,c)=i: LET a$(r+22,c)=CHR$(i+8*bg): REM p(r,c) ink + white paper
- 6120 PRINT AT r,c-1;INK i;i$
+ 6114 LET p(r,c)=i: LET a$(r+22,c)=CHR$ (i+8*bg): REM p(r,c) ink + white paper
+ 6120 PRINT AT r,c-1; INK i;i$
  6130 GO TO 6030
 # Save level
  6200 INPUT "": PRINT #0;"Scanning level, please wait."
@@ -380,6 +377,6 @@
  9178 DATA "0018180000181800"
  9179 DATA "FFCC3333CCCC33FF"
  9180 DATA "AA55AA55AA55AA55"
- 9989 STOP
- 9990 SAVE "Thief"LINE 500
+ 9989 STOP 
+ 9990 SAVE "Thief" LINE 500
  9992 GO TO 500
