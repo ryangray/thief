@@ -32,9 +32,10 @@
 # o$ - Char to color map: o$(CODE a$(r,c))=CHR$ color
 #
     4 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
-    5 DEF FN x(x$)=PEEK 23563+256*PEEK 23564: REM DEFADD reuse
+    5 DEF FN x(x$)=PEEK 23563+256*PEEK 23564: REM DEFADD reusable
     6 DEF FN v(x$)=PEEK (FN x(x$)+4)+256*PEEK (FN x(x$)+5): REM addr of x$
     7 DEF FN d(x$,y$)=PEEK 23563+256*PEEK 23564: REM DEFADD copying
+    8 DEF FN a(r,c)=22528+r*32+c-1: REM attrib mem location of a$(r,c) on screen
    10 GO SUB 8500: REM Title screen
    19 GO TO 508
   400 REM MOVES
@@ -63,19 +64,25 @@
   501 POKE 23658,0: REM Caps lock off
   506 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
   507 GO TO 9000
-  508 PRINT AT 14,8;"\ :P\: lay game   ";AT 16,8;"\ :C\: reate levels": PRINT AT 14,9; INVERSE 1; FLASH 1;"P";AT 16,9; INVERSE 0;"C"
-  509 PRINT AT 12,9;" - CHOOSE -  "
+  508 PRINT AT 12,9;"\ :P\: lay game   "; AT 14,9;"\ :K\: eys      ";AT 16,9;"\ :E\: dit levels"
+  509 PRINT AT 12,10; INVERSE 1; FLASH 1;"P";AT 16,10; "E";INVERSE 0;AT 14,10;"K"
   510 SOUND 6,31;7,28;10,12
   511 FOR b=13 TO 0 STEP -1: SOUND 10,b
   512 FOR a=31 TO 0 STEP -1: SOUND 6,a
   513 LET k$=INKEY$
-  514 IF k$="p" THEN SOUND 13,0;7,63;8,0;9,0;10,0: GO TO 900
-  515 IF k$="c" THEN SOUND 13,0;7,63;8,0;9,0;10,0: GO TO 6000
+  514 IF k$="" THEN GO TO 520
+  515 SOUND 13,0;7,63;8,0;9,0;10,0
+  517 IF k$="p" THEN GO TO 900
+  518 IF k$="e" THEN GO TO 6000
+  519 IF k$="k" THEN GO SUB 8000: GOTO 7540
   520 NEXT a: NEXT b
   525 SOUND 7,56;10,16;6,0
   530 LET k$=INKEY$
-  531 IF k$="p" THEN GO TO 900
-  532 IF k$="c" THEN SOUND 13,0;7,63;8,0;9,0;10,0: GO TO 6000
+  531 IF k$="" THEN GO TO 530
+  532 SOUND 13,0;7,63;8,0;9,0;10,0
+  533 IF k$="p" THEN GO TO 900
+  534 IF k$="e" THEN GO TO 6000
+  535 IF k$="k" THEN GO SUB 8000: GOTO 7540
   550 GO TO 530
   600 REM Copy attribs from a$ to ATTRIB memory
   620 LET z=FN v(a$(1)): REM Get a$ addr
@@ -99,9 +106,8 @@
   930 GO TO 2039
   999 REM MAIN LOOP
 # Copy new level from a$ into b$ for keeping original data
-#1000 DIM b$(21,32): FOR z=1 TO 21: LET b$(z)=a$(z): BEEP .001,z+14: NEXT z
- 1000 BORDER bg: PAPER bg: INK fg
- 1001 GO SUB 5000
+ 1000 DIM b$(21,32): FOR z=1 TO 21: LET b$(z)=a$(z): BEEP .001,z+14: NEXT z: BORDER bg: PAPER bg: INK fg
+ 1001 GO SUB 5000: REM Draw level
  1002 LET ti=20*CODE a$(22,3): REM Time allotment, 20 per treasure
  1003 POKE 23672,0: POKE 23673,0: REM Reset FRAMES (lower 2 bytes)
 # Setting FRAMES for my counter rather than saving the whole value and 
@@ -160,8 +166,8 @@
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
  2001 SOUND 13,0
  2010 CLS 
- 2020 PRINT AT 10,0;"Load the next level by starting the cassette player"
- 2021 PRINT AT 12,14; FLASH 1;"NOW"
+ 2020 PRINT AT 10,0;"Prepare the tape for the next   level and press a key ..."
+ 2022 IF INKEY$="" THEN GO TO 2022
  2030 LOAD "" DATA A$()
  2032 IF a$(22,32)=" " THEN GO SUB 5100
  2035 LET l=l+1
@@ -189,17 +195,17 @@
  2130 GO TO 1020
  5000 REM Draw level
  5010 INK 8: PAPER 0: BORDER 0
- 5012 CLS : PRINT AT 1,0;
- 5014 DIM b$(21,32)
- 5020 FOR r=1 TO 21
- 5022 LET b$(r)=a$(r)
- 5023 BEEP .001,35-r
- 5024 PRINT AT r,0;a$(r)
- 5025 NEXT r
+ 5011 LET r=CODE a$(22,1): LET c=CODE a$(22,2)
+ 5012 CLS
+# 5014 DIM b$(21,32)
+ 5020 FOR a=1 TO 21
+ 5023 BEEP .001,35-a
+ 5024 PRINT AT a,0;a$(a);AT r,c-1;FLASH 1;"\m"
+ 5025 NEXT a
  5030 GO SUB 600
  5090 RETURN 
  5100 REM Colorize a v1 level
- 5102 DIM p(21,32): DIM b$(22,32)
+ 5102 DIM b$(22,32)
  5104 PRINT AT 0,1;" Colorizing old v1 level ..."
  5105 BORDER bg: PAPER bg: INK fg
  5106 FOR r=1 TO 22: LET b$(r)=a$(r): NEXT r
@@ -209,79 +215,103 @@
  5112 LET a$(r)=b$(r)
  5114 PRINT AT r,0;a$(r)
  5120 FOR c=1 TO 32
- 5122 LET i=CODE o$(CODE a$(r,c))
- 5130 LET p(r,c)=i
- 5132 LET a$(r+22,c)=CHR$ (i+8*bg)
+ 5122 LET i=CODE o$(CODE a$(r,c))+8*bg
+ 5132 LET a$(r+22,c)=CHR$ (i)
  5140 NEXT c: NEXT r
  5150 CLS 
  5190 RETURN 
  6000 REM LEVEL EDITOR
- 6010 DIM a$(43,32): DIM p(21,32)
- 6012 LET a$(22,1)=CHR$ 10: LET a$(22,2)=CHR$ 15
- 6013 LET a$(22,32)="2": REM v2 level
+ 6002 INK fg: PAPER bg: BORDER bg: CLS
+ 6004 INPUT "New, ";"Current, " AND l;"Load ? ";k$
+ 6005 IF k$="c" THEN GO TO 6014
+ 6006 IF k$="n" THEN GO TO 6010
+ 6008 IF k$="l" THEN GO TO 6400
+ 6009 GO TO 6004
+ 6010 DIM a$(43,32): LET m1=10: LET a$(22,1)=CHR$ m1: LET m2=15: LET a$(22,2)=CHR$ m2: LET a$(22,32)="2"
+ 6011 FOR b=1 TO 32: LET a$(23,b)=CHR$ (fg+bg*8): NEXT b
+ 6012 FOR a=2 TO 21: LET a$(22+a)=a$(23): NEXT a
+ 6013 LET a$(m1,m2)="\i": GO TO 6019
  6014 CLS : PRINT #0;"WAIT..."
  6015 LET m1=CODE a$(22,1): LET m2=CODE a$(22,2): LET a$(m1,m2)="\i"
  6016 FOR a=1 TO 21: FOR b=1 TO 32: LET k$=a$(a,b)
- 6017 PRINT AT a,b-1; INK p(a,b);(k$ AND k$<>"\f");("\u" AND k$="\f")
- 6018 NEXT b: NEXT a
+ 6017 PRINT AT a,b-1;(k$ AND k$<>"\f");("\u" AND k$="\f")
+ 6018 POKE FN a(a,b),CODE a$(a+22,b): NEXT b: NEXT a
  6019 BORDER 6
  6020 LET r=1: LET c=1
- 6021 INPUT "": PRINT #0;"1\c 2\u 3\:: 4\h 5\i 6\j 7 \k  Save Get"
+ 6021 INPUT "": PRINT #0;"1\c 2\u 3\:: 4\h 5\i 6\j 7\k ";INVERSE 1;"S";INVERSE 0;"ave ";INVERSE 1;"G";INVERSE 0;"et ";INVERSE 1;"Q"
+ 6022 PRINT AT 0,0;"SCORE:xxx";AT 0,23;"TIME:xxx";AT 0,10;"LEVEL:xx"
  6030 PRINT AT r,c-1; FLASH 1; INK 8;a$(r,c)
  6040 LET k$=INKEY$
  6041 IF k$>"0" AND k$<"8" THEN GO TO 6100
- 6042 IF k$=" " AND a$(r,c)<>"\i" THEN LET a$(r,c)=k$: LET i=CODE o$(32): LET p(r,c)=i: LET a$(22+r,c)=CHR$ (i+8*bg)
+ 6042 IF k$=" " AND a$(r,c)<>"\i" THEN LET a$(r,c)=k$: LET i=CODE o$(32)+8*bg: LET a$(22+r,c)=CHR$ (i): POKE FN a(r,c),i
  6043 IF k$="s" THEN GO TO 6200
  6044 IF k$="g" THEN GO TO 6400
- 6045 IF k$<>"a" AND k$<>"z" AND k$<>"l" AND k$<>"k" THEN GO TO 6040
+ 6045 IF k$="q" THEN GO TO 6300
+ 6046 IF k$<>"a" AND k$<>"z" AND k$<>"l" AND k$<>"k" THEN GO TO 6040
  6050 LET x=r: LET y=c: LET r=r+(k$="z" AND r<21)-(k$="a" AND r>1): LET c=c+(k$="l" AND c<32)-(k$="k" AND c>1)
- 6060 PRINT AT x,y-1; INK p(x,y);a$(x,y)
- 6061 IF a$(x,y)="\f" THEN PRINT AT x,y-1; INK p(x,y);"\u"
+ 6060 LET k$=a$(x,y): PRINT AT x,y-1; INK 8;(k$ AND k$<>"\f");"\u" AND k$="\f"
  6070 GO TO 6030
  6100 LET a$(r,c)=("\::" AND k$="3")+("\c" AND k$="1")+("\f" AND k$="2")+("\h" AND k$="4")+("\i" AND k$="5")+("\j" AND k$="6")+("\k" AND k$="7")
  6110 IF k$="5" THEN LET a$(m1,m2)=" ": PRINT AT m1,m2-1;" ": LET m1=r: LET m2=c: LET a$(22,1 TO 2)=CHR$ m1+CHR$ m2: LET a$(r,c)="\i"
- 6112 LET i$=a$(r,c): LET i=CODE o$(CODE i$)
- 6114 LET p(r,c)=i: LET a$(r+22,c)=CHR$ (i+8*bg): REM p(r,c) ink + white paper
- 6120 PRINT AT r,c-1; INK i;i$
+ 6112 LET i$=a$(r,c): LET i=CODE o$(CODE i$)+8*bg
+ 6114 LET a$(r+22,c)=CHR$ (i)
+ 6120 PRINT AT r,c-1;i$: POKE FN a(r,c),i
  6130 GO TO 6030
 # Save level
  6200 INPUT "": PRINT #0;"Scanning level, please wait."
  6205 LET m=NOT PI
- 6210 FOR a=1 TO 21: FOR b=1 TO 32: LET m=m+(a$(a,b)="\j"): NEXT b: NEXT a
+ 6210 FOR a=1 TO 21: PRINT AT a,0;a$(a): FOR b=1 TO 32: LET m=m+(a$(a,b)="\j"): NEXT b: NEXT a
  6215 LET a$(m1,m2)=" "
  6220 LET a$(22,3)=CHR$ m
- 6230 INPUT "FILENAME [10 max]:";f$: IF f$="" OR LEN f$>10 THEN GO TO 6021
+ 6230 INPUT "NAME [10 max, blank to stop]:";f$: IF f$="" OR LEN f$>10 THEN GO TO 6021
  6240 SAVE f$ DATA a$()
  6250 PRINT #0; FLASH 1;"STOP THE TAPE": PAUSE 120
- 6260 INPUT "": INPUT "Do another level? [y/n]:";f$
- 6280 IF f$="n" THEN GO TO 6300
- 6290 INPUT "Clear or Modify this level:";f$
- 6295 IF f$="m" OR f$="M" THEN LET a$(m1,m2)="\i": GO TO 6021
- 6296 IF f$="c" OR f$="C" THEN GO TO 6010
- 6297 GO TO 6290
- 6300 INPUT "Play the new level? [y/n]:";f$
- 6305 BORDER 7
- 6310 IF f$="y" OR f$="Y" THEN CLS : GO TO 920
- 6320 GO TO 900
+ 6300 INPUT "": INPUT "New, Modify, Play, Quit? ";f$
+ 6310 IF f$="m" THEN LET a$(m1,m2)="\i": GO TO 6021
+ 6320 IF f$="n" OR f$="N" THEN GO TO 6010
+ 6330 BORDER 7
+ 6340 IF f$="p" THEN CLS: GO TO 920
+ 6350 IF f$="q" THEN GO TO 7530
+ 6360 GO TO 6300
 # Load a level to edit
  6400 INPUT "LOAD [$ TO abort]:";f$: IF f$="$" THEN GO TO 6021
  6410 CLS : PRINT AT 10,10;"Loading..."
  6420 LOAD f$ DATA a$()
+ 6421 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
  6422 IF a$(22,32)=" " THEN GO SUB 5100
  6430 GO TO 6014: REM Start editing
-# Ran out of time playing level
+# Ran out of time playing level or pressed "d"
  7000 IF q=0 THEN GO TO 7500
  7001 LET q=q-1: IF q=0 THEN GO TO 7500
- 7002 FOR a=1 TO 40: SOUND 11,a: NEXT a: SOUND 13,0
- 7010 GO TO 1001
+ 7002 FOR a=1 TO 21: SOUND 11,a: LET a$(a)=b$(a): NEXT a: SOUND 13,0
+ 7010 IF k$<>"d" THEN GO TO 1001 
+ 7020 INPUT "Replay, Next level, Quit? ";k$
+ 7022 PAUSE 30
+ 7030 IF k$="n" THEN GO TO 2010
+ 7040 IF k$="q" THEN GO TO 7530
+ 7042 IF k$="e" THEN GO TO 6014
+ 7050 GO TO 1001
 # GAME OVER
  7500 SOUND 8,15;9,15;7,39;6,0;12,50;13,0
  7502 FOR a=30 TO 0 STEP -4: SOUND 6,a: NEXT a
  7504 FOR a=0 TO 31: SOUND 6,a: NEXT a
  7506 SOUND 8,16;9,16;13,0
  7510 PRINT AT 10,10;"           ";AT 11,10;" GAME OVER ";AT 12,10;"           "
- 7520 IF INKEY$="" THEN GO TO 7520
- 7530 STOP 
+ 7520 PAUSE 240
+ 7530 INK 0: PAPER 7: BORDER 7: CLS
+ 7540 GO SUB 8500: GO SUB 8560
+ 7550 GO TO 508
+# Key help
+ 8000 PRINT AT 12,3;"A - Up      N - Dig left"
+ 8030 PRINT AT 13,3;"Z - Down    M - Dig right"
+ 8040 PRINT AT 14,3;"K - Left    X - Fill left"
+ 8050 PRINT AT 15,3;"L - Right   C - Fill right"
+ 8060 PRINT AT 16,3;"D - Die (if you get stuck)"
+ 8070 INPUT "Press ENTER: ";k$
+ 8090 FOR a=12 TO 16
+ 8092 PRINT AT a,3;"                          "
+ 8094 NEXT a
+ 8099 RETURN
 # Title Screen
  8500 REM title screen
  8510 PLOT 50,100: DRAW 6,6: DRAW 10,60: DRAW -8,1: DRAW -10,-57: DRAW 1,-9
@@ -298,9 +328,11 @@
  8550 PLOT 185,95: DRAW 9,67: DRAW 22,-2
  8551 PLOT 190,140: DRAW 14,4
  8555 BORDER 5
- 8556 PLOT 0,34: DRAW 255,0: DRAW 0,141: DRAW -255,0: DRAW 0,-141
- 8559 INK 0
- 8560 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
+ 8556 INK 0
+ 8558 RETURN
+ 8560 INK 2
+ 8565 PLOT 0,34: DRAW 255,0: DRAW 0,141: DRAW -255,0: DRAW 0,-141
+ 8570 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
  8598 INK 0
  8599 RETURN 
 # Load UDGs
@@ -309,7 +341,7 @@
  9000 RESTORE 9160
  9001 LET a=10: LET b=11
  9002 LET c=12: LET d=13
- 9003 LET e=14: LET f=15
+ 9003 LET e=14: LET f=15: LET l=0
  9004 LET bg=0: LET fg=7: LET bf=6
  9005 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
  9006 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
@@ -325,6 +357,7 @@
  9060 LET g=g+1
  9070 NEXT i
  9080 NEXT h
+ 9082 GO SUB 8560
  9085 SOUND 10,16;4,20;5,10
  9090 REM Set up DEFADD FN
  9092 LET df=FN d("",""): POKE df+3,0: POKE df+4,32: POKE df+5,88: REM ATTRIB address (row 1)
