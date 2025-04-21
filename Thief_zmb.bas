@@ -31,14 +31,21 @@
 # m$ - Man character: left/right with stand/walk/climb variants
 # o$ - Char to color map: o$(CODE a$(r,c))=CHR$ color
 #
-    4 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
+# Same SOUND setup found at 502 on autorun, so must be here in case you just use RUN
+# Enable A B C for tone with max volume and starting tones. 
+# The UDG loader will vary the tones with the data loaded, then the menu display changes the sound
     5 DEF FN x(x$)=PEEK 23563+256*PEEK 23564: REM DEFADD reusable
     6 DEF FN v(x$)=PEEK (FN x(x$)+4)+256*PEEK (FN x(x$)+5): REM addr of x$
     7 DEF FN d(x$,y$)=PEEK 23563+256*PEEK 23564: REM DEFADD copying a$ to ATTRIBs
     8 DEF FN a(r,c)=22528+r*32+c-1: REM attrib mem location of a$(r,c) on screen
     9 DEF FN c(c$)=CODE o$(CODE c$)+bg*8: REM attrib for char
-   10 GO SUB 8500: REM Title screen
-   19 GO TO 508
+   90 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
+   92 GO SUB 9000: REM init
+   94 GO TO 500: REM Main menu
+   99 REM Auto start from tape at 100
+  100 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
+  110 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
+  120 GO TO 92
   400 REM MOVES
   409 REM left
 # Could consider using 0/1 logical for direction?
@@ -67,30 +74,31 @@
   442 PRINT AT x,y-1;a$(x,y);AT r,c-1;m$
   443 POKE FN a(x,y),CODE a$(x+22,y)
   444 RETURN 
-# Cold start here
-  500 REM Autorun here
-  501 POKE 23658,0: REM Caps lock off
-  506 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
-  507 GO TO 9000
-  508 PRINT AT 12,9;"\ :P\: lay game   "; AT 14,9;"\ :K\: eys      ";AT 16,9;"\ :E\: dit levels"
-  509 PRINT AT 12,10; INVERSE 1; FLASH 1;"P";AT 16,10; "E";INVERSE 0;AT 14,10;"K"
-  510 INPUT "": SOUND 6,31;7,28;10,12
-  511 FOR b=13 TO 0 STEP -1: SOUND 10,b
-  512 FOR a=31 TO 0 STEP -1: SOUND 6,a
-  513 LET k$=INKEY$
-  514 IF k$="" THEN GO TO 520
-  515 SOUND 13,0;7,63;8,0;9,0;10,0
-  517 IF k$="p" THEN GO TO 900
-  518 IF k$="e" THEN GO TO 6000
-  519 IF k$="k" THEN GO SUB 8000: GOTO 7540
-  520 NEXT a: NEXT b
-  525 SOUND 7,56;10,16;6,0
-  530 LET k$=INKEY$
-  531 IF k$="" THEN GO TO 530
-  532 SOUND 13,0;7,63;8,0;9,0;10,0
-  533 IF k$="p" THEN GO TO 900
-  534 IF k$="e" THEN GO TO 6000
-  535 IF k$="k" THEN GO SUB 8000: GOTO 7540
+# Main menu
+  500 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
+  502 GO SUB 8500: REM Draw top of title screen
+  504 PRINT AT 14,10;"Please wait"
+  506 GO SUB 9100: REM Load UDGs
+  508 GO SUB 8560: REM Draw bottom of screen
+  510 PRINT AT 12,9;"\ :P\: lay game   ";AT 14,9;"\ :K\: eys      ";AT 16,9;"\ :E\: dit levels"
+  512 PRINT AT 12,10; INVERSE 1; FLASH 1;"P";AT 16,10;"E"; INVERSE 0;AT 14,10;"K"
+  520 INPUT "": SOUND 6,31;7,28;10,12
+  521 FOR b=13 TO 0 STEP -1: SOUND 10,b
+  522 FOR a=31 TO 0 STEP -1: SOUND 6,a
+  523 LET k$=INKEY$
+  524 IF k$="" THEN GO TO 530
+  525 SOUND 13,0;7,63;8,0;9,0;10,0
+  527 IF k$="p" THEN GO TO 900
+  528 IF k$="e" THEN GO TO 6000
+  529 IF k$="k" THEN GO SUB 8000: GO TO 510
+  530 NEXT a: NEXT b
+  535 SOUND 7,56;10,16;6,0
+  540 LET k$=INKEY$
+  541 IF k$="" THEN GO TO 540
+  542 SOUND 13,0;7,63;8,0;9,0;10,0
+  543 IF k$="p" THEN GO TO 900
+  544 IF k$="e" THEN GO TO 6000
+  545 IF k$="k" THEN GO SUB 8000: GO TO 510
   550 GO TO 530
   600 REM Copy attribs from a$ to ATTRIB memory
   620 LET z=FN v(a$(1)): REM Get a$ addr
@@ -102,7 +110,7 @@
   632 POKE 23563,0: POKE 23564,0: REM Reset DEFADD
   639 RETURN 
 # Load first level
-  900 BORDER 7: CLS
+  900 BORDER 7: CLS 
   902 PRINT AT 10,0;"Press a key when ready to load     the first level from tape"
   904 PAUSE 20
   906 PAUSE 0
@@ -225,10 +233,10 @@
  5000 REM Draw level
  5010 INK fg: PAPER bg: BORDER bg
  5011 LET r=CODE a$(22,1): LET c=CODE a$(22,2)
- 5012 CLS
+ 5012 CLS 
  5020 FOR a=1 TO 21
  5023 BEEP .001,35-a
- 5024 PRINT AT a,0;a$(a);AT r,c-1;FLASH 1;"\m"
+ 5024 PRINT AT a,0;a$(a);AT r,c-1; FLASH 1;"\m"
  5025 NEXT a
  5030 GO SUB 600
  5090 RETURN 
@@ -250,7 +258,7 @@
  5190 RETURN 
  6000 REM LEVEL EDITOR
  6001 GO SUB 6500
- 6002 INK fg: PAPER bg: BORDER bg: CLS
+ 6002 INK fg: PAPER bg: BORDER bg: CLS 
  6004 INPUT "New, ";"Current, " AND l;"Load ? ";k$
  6005 IF k$="c" THEN GO TO 6014
  6006 IF k$="n" THEN GO TO 6010
@@ -261,15 +269,15 @@
  6011 FOR b=1 TO 32: LET a$(23,b)=CHR$ (fg+bg*8): NEXT b
  6012 FOR a=2 TO 21: LET a$(22+a)=a$(23): NEXT a
  6013 GO TO 6019
- 6014 CLS
+ 6014 CLS 
  6015 LET m1=CODE a$(22,1): LET m2=CODE a$(22,2)
  6016 LET r=m1: LET c=m2
  6017 GO SUB 5000
  6019 BORDER 6
  6020 LET r=1: LET c=1
- 6021 INPUT "": PRINT #0; "1\c2\u3\g4\::5\h6\k7\j8\i spc  ";INVERSE 1;"S";INVERSE 0;"ave ";INVERSE 1;"G";INVERSE 0;"et ";INVERSE 1;"X"
+ 6021 INPUT "": PRINT #0;"1\c2\u3\g4\::5\h6\k7\j8\i spc  "; INVERSE 1;"S"; INVERSE 0;"ave "; INVERSE 1;"G"; INVERSE 0;"et "; INVERSE 1;"X"
  6022 PRINT AT 0,0;"SCORE:xxx  LEVEL:xx \m\m\m TIME:xxx"
- 6030 PRINT AT r,c-1; FLASH 1; INK 8; PAPER 8; OVER 1; " "
+ 6030 PRINT AT r,c-1; FLASH 1; INK 8; PAPER 8; OVER 1;" "
  6040 LET k$=INKEY$
  6050 IF k$="s" THEN GO TO 6200
  6052 IF k$="g" THEN GO TO 6400
@@ -317,9 +325,10 @@
  6232 IF f$="" THEN GO TO 6021
  6240 SAVE f$ DATA a$()
  6250 PRINT #0; FLASH 1;"STOP THE TAPE": PAUSE 120
+# Exit editor without saving
  6300 INPUT "": INPUT "Edit, Play, Quit? ";f$
  6310 IF f$="e" THEN GO TO 6002
- 6320 IF f$="p" THEN CLS: GO SUB 6600: GO TO 920
+ 6320 IF f$="p" THEN CLS : GO SUB 6600: GO TO 920
  6330 IF f$="q" THEN GO SUB 6600: GO TO 7530
  6340 GO TO 6300
 # Load a level to edit
@@ -342,7 +351,7 @@
  7000 IF q=0 THEN GO TO 7500
  7001 LET q=q-1: IF q=0 THEN GO TO 7500
  7002 FOR a=1 TO 21: SOUND 11,a: LET a$(a)=b$(a): NEXT a: SOUND 13,0
- 7010 IF k$<>"d" THEN GO TO 1001 
+ 7010 IF k$<>"d" THEN GO TO 1001
  7020 INPUT "Replay, Next level, Quit? ";k$
  7022 PAUSE 30
  7030 IF k$="n" THEN GO TO 2010
@@ -356,9 +365,8 @@
  7506 SOUND 8,16;9,16;13,0
  7510 PRINT AT 10,10;"           ";AT 11,10;" GAME OVER ";AT 12,10;"           "
  7520 PAUSE 240
- 7530 INK 0: PAPER 7: BORDER 7: CLS
- 7540 GO SUB 8500: GO SUB 8560
- 7550 GO TO 508
+ 7530 INK 0: PAPER 7: BORDER 7: CLS 
+ 7540 GO TO 500
 # Key help
  8000 PRINT AT 12,1;"A - Up      N - Dig/fill left"
  8030 PRINT AT 13,1;"Z - Down    M - Dig/fill right"
@@ -369,7 +377,7 @@
  8090 FOR a=12 TO 16
  8092 PRINT AT a,1;"                              "
  8094 NEXT a
- 8099 RETURN
+ 8099 RETURN 
 # Title Screen
  8500 REM title screen
  8510 PLOT 50,100: DRAW 6,6: DRAW 10,60: DRAW -8,1: DRAW -10,-57: DRAW 1,-9
@@ -387,71 +395,71 @@
  8551 PLOT 190,140: DRAW 14,4
  8555 BORDER 5
  8556 INK 0
- 8558 RETURN
+ 8558 RETURN 
  8560 INK 2
  8565 PLOT 0,33: DRAW 255,0: DRAW 0,142: DRAW -255,0: DRAW 0,-142
  8570 PRINT AT 18,0; PAPER 2; INK 7;"Guide the thief quickly through the castle while no one is aboutand steal the treasure "; INK 6;"\j"; INK 7;" within.Be quick or be dead.            "
  8598 INK 0
  8599 RETURN 
+# Init
+ 9000 LET l=0
+ 9002 LET bg=0: LET fg=7: LET bf=6
+ 9009 REM Set up DEFADD FN for copying a$(23 TO 43) to ATTRIB memory at row 1
+ 9010 LET da=FN d("",""): POKE da+3,0: POKE da+4,32: POKE da+5,88: REM ATTRIB address (row 1)
+ 9012 POKE da+6,160: POKE da+7,2: POKE da+15,160: POKE da+16,2: REM ATTRIB length
+ 9014 LET dh=INT (da/256): LET dl=da-256*dh: REM lo/hi bytes of da
+ 9020 REM Make color map (inks only for now)
+ 9022 DIM o$(165): REM o$(CODE b$(r,c))=color_attrib
+ 9023 LET o$(32)=CHR$ 7: REM  Empty space
+ 9024 LET o$(143)=CHR$ 5: REM \:: Solid brick
+ 9026 LET o$(144)=CHR$ 7: REM \a Player, stand right
+ 9028 LET o$(145)=CHR$ 7: REM \b Player, climb left
+ 9030 LET o$(146)=CHR$ 5: REM \c Brick, undug
+ 9032 LET o$(147)=CHR$ 5: REM \c Brick, dug 1
+ 9034 LET o$(148)=CHR$ 5: REM \d Brick, dug 2
+ 9036 LET o$(149)=CHR$ 5: REM \f Brick, fake
+ 9038 LET o$(150)=CHR$ 1: REM \g Passage brick
+ 9040 LET o$(151)=CHR$ 4: REM \h Ladder
+ 9042 LET o$(152)=CHR$ 7: REM \i Player, walk right
+ 9044 LET o$(153)=CHR$ 6: REM \j Treasure
+ 9046 LET o$(154)=CHR$ 3: REM \k Overhead bar
+ 9048 LET o$(155)=CHR$ 7: REM \l Player, walk left
+ 9050 LET o$(156)=CHR$ 7: REM \m Player, stand left
+ 9052 LET o$(157)=CHR$ 7: REM \n Player, climb right
+ 9054 LET o$(163)=CHR$ 2: REM \t Brick, solid play mode copy
+ 9056 LET o$(164)=CHR$ 2: REM \u Brick, fake, edit mode
+ 9059 RETURN 
 # Load UDGs
- 8998 REM UDG's
- 8999 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u
- 9000 RESTORE 9160
- 9001 LET a=10: LET b=11
- 9002 LET c=12: LET d=13
- 9003 LET e=14: LET f=15: LET l=0
- 9004 LET bg=0: LET fg=7: LET bf=6
- 9005 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
- 9006 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
- 9007 PRINT AT 14,10;"Please wait"
- 9008 GO SUB 8500
- 9009 SOUND 10,12;5,2
- 9010 LET g=USR "a"
- 9011 LET m=0
- 9012 READ k$
- 9013 FOR i=1 TO LEN k$-1 STEP 2
- 9014 LET j=PEEK g
- 9015 LET k=VAL k$(i)*16+VAL k$(i+1)
- 9016 IF j<>k THEN LET m=1
- 9017 POKE g,k: SOUND 4,k
- 9018 LET g=g+1
- 9019 NEXT i
- 9020 IF m=0 THEN GO TO 9070: REM Skip the rest
- 9030 FOR h=2 TO 21
- 9035 READ k$
- 9040 FOR i=1 TO LEN k$-1 STEP 2
- 9045 LET k=VAL k$(i)*16+VAL k$(i+1)
- 9050 POKE g,k: SOUND 4,k
- 9055 LET g=g+1
- 9060 NEXT i
- 9065 NEXT h
- 9070 GO SUB 8560
- 9075 SOUND 10,16;4,20;5,10
- 9079 REM Set up DEFADD FN for copying a$(23 TO 43) to ATTRIB memory at row 1
- 9080 LET da=FN d("",""): POKE da+3,0: POKE da+4,32: POKE da+5,88: REM ATTRIB address (row 1)
- 9082 POKE da+6,160: POKE da+7,2: POKE da+15,160: POKE da+16,2: REM ATTRIB length
- 9084 LET dh=INT (da/256): LET dl=da-256*dh: REM lo/hi bytes of da
- 9100 REM Make color map (inks only for now)
- 9102 DIM o$(165): REM o$(CODE b$(r,c))=color_attrib
- 9103 LET o$(32)=CHR$ 7: REM  Empty space
- 9104 LET o$(143)=CHR$ 5: REM \:: Solid brick
- 9106 LET o$(144)=CHR$ 7: REM \a Player, stand right
- 9108 LET o$(145)=CHR$ 7: REM \b Player, climb left
- 9110 LET o$(146)=CHR$ 5: REM \c Brick, undug
- 9112 LET o$(147)=CHR$ 5: REM \c Brick, dug 1
- 9114 LET o$(148)=CHR$ 5: REM \d Brick, dug 2
- 9116 LET o$(149)=CHR$ 5: REM \f Brick, fake
- 9118 LET o$(150)=CHR$ 1: REM \g Passage brick
- 9120 LET o$(151)=CHR$ 4: REM \h Ladder
- 9122 LET o$(152)=CHR$ 7: REM \i Player, walk right
- 9124 LET o$(153)=CHR$ 6: REM \j Treasure
- 9126 LET o$(154)=CHR$ 3: REM \k Overhead bar
- 9128 LET o$(155)=CHR$ 7: REM \l Player, walk left
- 9130 LET o$(156)=CHR$ 7: REM \m Player, stand left
- 9132 LET o$(157)=CHR$ 7: REM \n Player, climb right
- 9134 LET o$(163)=CHR$ 2: REM \t Brick, solid play mode copy
- 9136 LET o$(164)=CHR$ 2: REM \u Brick, fake, edit mode
- 9139 GO TO 508
+# Sound channel C is fine tuned based on the UDG data byte while loading.
+ 9098 REM UDG's
+ 9099 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u
+ 9100 RESTORE 9160
+ 9101 LET a=10: LET b=11
+ 9102 LET c=12: LET d=13
+ 9103 LET e=14: LET f=15
+ 9109 SOUND 10,12;5,2
+ 9110 LET g=USR "a"
+ 9111 LET m=0
+ 9112 READ k$
+ 9113 FOR i=1 TO LEN k$-1 STEP 2
+ 9114 LET j=PEEK g
+ 9115 LET k=VAL k$(i)*16+VAL k$(i+1)
+ 9116 IF j<>k THEN LET m=1
+ 9117 POKE g,k: SOUND 4,k
+ 9118 LET g=g+1
+ 9119 NEXT i
+ 9120 IF m=0 THEN GO TO 9150: REM Skip the rest
+ 9130 FOR h=2 TO 21
+ 9132 READ k$
+ 9134 FOR i=1 TO LEN k$-1 STEP 2
+ 9136 LET k=VAL k$(i)*16+VAL k$(i+1)
+ 9138 POKE g,k: SOUND 4,k
+ 9140 LET g=g+1
+ 9142 NEXT i
+ 9144 NEXT h
+# Ch. C note before menu?
+ 9150 SOUND 10,16;4,20;5,10
+ 9152 RETURN 
  9159 REM UDG data
 # \a Player stand right
  9160 DATA "181810383C18181C"
@@ -496,5 +504,6 @@
 # \u Brick fake for edit mode
  9180 DATA "AAAA5555AAAA5555"
  9989 STOP 
- 9990 SAVE "Thief" LINE 500
- 9992 GO TO 500
+ 9990 CLEAR 
+ 9992 SAVE "Thief" LINE 100
+ 9994 RUN 100
