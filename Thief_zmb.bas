@@ -150,7 +150,6 @@
   930 GO TO 2039
   999 REM MAIN LOOP
 # Copy new level from a$ into b$ for keeping original data
-# 1000 DIM b$(43,32): FOR z=1 TO 43: LET b$(z)=a$(z): BEEP .001,z+14: NEXT z: BORDER bg: PAPER bg: INK fg: CLS 
  1000 DIM b$(43,32): GO SUB 650: BORDER bg: PAPER bg: INK fg: CLS 
  1001 GO SUB 5000: REM Draw level
  1002 LET ti=20*CODE a$(22,3): REM Time allotment, 20 per treasure
@@ -158,10 +157,8 @@
 # Setting FRAMES for my counter rather than saving the whole value and 
 # differencing it with the current.
  1004 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
-# 1005 PRINT AT 0,23; INK 1;"\o"; INK 3;"\p"; INK 2;"\q"; INK 4;"\r"; INK 5;"\s"
  1005 PRINT AT 0,0;"SCORE:";TAB 11;"LEVEL:";TAB 24;"TIME:"
  1006 LET r=m1: LET c=m2: LET m=0: LET d=2
-# 1007 PRINT AT 0,0;"SCORE:"; INK bf;sc;AT 0,28;ti;AT 0,10; INK fg;"LEVEL:"; INK bf;l;AT 0,18;"\a\a\a"( TO q)
  1007 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,20;"\a\a\a"( TO q);AT 0,29;ti
  1008 LET x=r: LET y=c: LET xd=d
 # Top of main loop
@@ -181,7 +178,6 @@
  1031 IF a$(r,c)="\h" THEN GO TO 1045
  1032 IF r=21 THEN GO TO 1045
 # If below us is not a space, bar, fake brick, treasure, or passage then skip
-# 1033 IF n$<>"\k" AND n$<>" " AND n$<>"\f" AND n$<>"\j" THEN GO TO 1040
  1033 IF n$=" " THEN GO TO 1040
  1034 IF n$="\k" THEN GO TO 1040
  1035 IF n$="\f" THEN GO TO 1040
@@ -205,8 +201,8 @@
  1055 IF k$="x" THEN IF r>1 AND c>1 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c-1)) THEN GO SUB 430: LET x=r: LET y=c: GO SUB 410: GO TO 1066
  1056 IF k$="c" THEN IF r>1 AND c<32 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c+1)) THEN GO SUB 430: LET x=r: LET y=c: GO SUB 420: GO TO 1066
  1061 IF k$="d" THEN GO TO 7000: REM Die
- 1062 IF k$="m" THEN GO TO 1080: REM Dig right
- 1063 IF k$="n" THEN GO TO 1090: REM Dig left
+ 1062 IF k$="m" THEN GO SUB 1100: REM Dig right
+ 1063 IF k$="n" THEN GO SUB 1200: REM Dig left
  1064 IF k$="L" THEN LET d=2: REM Face right
  1065 IF k$="K" THEN LET d=1: REM Face left
 # If got a treasure, score it and check it its the last one
@@ -215,21 +211,41 @@
 # End of main loop
  1070 GO TO 1020
 # Dig right
- 1080 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 THEN GO TO 1020
- 1081 IF a$(r+1,c+1)="\g" THEN GO TO 2100
- 1082 IF NOT FN o(a$(r,c+1)) OR a$(r+1,c+1)<>"\c" THEN GO TO 1020
- 1083 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1084 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1085 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
- 1086 GO TO 1020
+ 1100 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 OR r=21 THEN RETURN 
+ 1102 IF NOT FN o(a$(r,c+1)) THEN RETURN : REM Not open above dig spot
+# 1104 IF NOT FN s(a$(r+1,c)) THEN RETURN : REM Not solid below us [Makes Vault pile impossible]
+ 1106 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
+ 1108 IF a$(r+1,c+1)="\g" THEN GO TO 1120: REM Dug
+ 1110 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1112 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1114 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
+ 1116 RETURN 
+# Fill right
+# This has the same criteria as dig, except the block has to be \g which we already checked above,
+# so we don't have to do those checks here. We do require solid below to fill.
+# Probably also move this up to just below the dig code.
+ 1120 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN GO TO 1020: REM No support below
+ 1122 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1124 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1126 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
+ 1128 RETURN 
 # Dig left
- 1090 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN GO TO 1020
- 1091 IF a$(r+1,c-1)="\g" THEN GO TO 2120
- 1092 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\c" THEN GO TO 1020
- 1093 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1094 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1095 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
- 1096 GO TO 1020
+ 1200 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
+ 1202 IF NOT FN o(a$(r,c-1)) THEN RETURN 
+# 1204 IF NOT FN s(a$(r+1,c)) THEN RETURN 
+ 1206 IF b$(r+1,c-1)<>"\c" THEN RETURN 
+ 1208 IF a$(r+1,c-1)="\g" THEN GO TO 1220
+ 1210 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1212 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1214 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
+ 1216 RETURN 
+# Fill left
+ 1220 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
+ 1222 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
+ 1224 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1225 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1226 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
+ 1230 RETURN 
 # Level finished, load next one
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
  2001 SOUND 13,0
@@ -245,21 +261,6 @@
  2038 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
  2039 PRINT AT 12,0;"PRESS ANY KEY to start level ";l: PAUSE 0
  2040 GO TO 1000
-# Fill right
- 2100 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 THEN GO TO 1020
-# Block to the right has to be space, bar or passage, and space to dig has to be a block
- 2102 IF NOT FN o(a$(r,c+1)) OR a$(r+1,c+1)<>"\g" OR b$(r+1,c+1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c+1))) THEN GO TO 1020
- 2105 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
- 2106 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
- 2107 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
- 2110 GO TO 1020
-# Fill left
- 2120 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN GO TO 1020
- 2122 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN GO TO 1020
- 2124 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
- 2125 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
- 2126 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
- 2130 GO TO 1020
  5000 REM Draw level
  5011 LET m1=CODE a$(22,1): LET m2=CODE a$(22,2)
  5020 FOR a=1 TO 21
@@ -424,7 +425,7 @@
  6750 RETURN 
  6800 REM Rename level
  6810 INPUT "Name:";t$
- 6812 IF LEN t$>24 THEN GO TO 6810
+ 6812 IF LEN t$>24 THEN LET t$=t$( TO 24)
  6820 IF t$<>"" THEN LET a$(22,4 TO 27)=t$
  6830 GO TO 6018
 # Ran out of time playing level or pressed "d"
@@ -484,7 +485,7 @@
  8158 INPUT "Press ENTER:";k$
  8199 RETURN 
 # Edit help
- 8200 CLS: PRINT AT 0,0; INK 7; PAPER 1; BRIGHT 1;" Thief Edit Help "
+ 8200 CLS : PRINT AT 0,0; INK 7; PAPER 1; BRIGHT 1;" Thief Edit Help "
  8210 PRINT '"Use a/z/k/l to move the cursor."
  8212 PRINT "Use 1-7 to set the block type,"'"space to clear it:"
  8220 PRINT '"1 "; INK CODE o$(CODE "\c");"\c"; INK fg;" - Diggable floor"
@@ -499,7 +500,7 @@
  8244 PRINT "      walkable location except"
  8246 PRINT "      for a treasure."
  8250 PRINT "S   - Save the level"
- 8252 PRINT "G   - Load a level"
+ 8252 PRINT "G   - Load (get) a level"
  8254 PRINT "X   - Quit without saving"
  8270 INPUT "Press ENTER:";k$
  8299 RETURN 

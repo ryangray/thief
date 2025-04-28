@@ -150,27 +150,40 @@
  1055 IF k$="x" THEN IF r>1 AND c>1 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c-1)) THEN GO SUB 430: LET x=r: LET y=c: GO SUB 410: GO TO 1066
  1056 IF k$="c" THEN IF r>1 AND c<32 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c+1)) THEN GO SUB 430: LET x=r: LET y=c: GO SUB 420: GO TO 1066
  1061 IF k$="d" THEN GO TO 7000: REM Die
- 1062 IF k$="m" THEN GO TO 1080: REM Dig right
- 1063 IF k$="n" THEN GO TO 1090: REM Dig left
+ 1062 IF k$="m" THEN GO SUB 1100: REM Dig right
+ 1063 IF k$="n" THEN GO SUB 1200: REM Dig left
  1064 IF k$="L" THEN LET d=2: REM Face right
  1065 IF k$="K" THEN LET d=1: REM Face left
  1066 IF a$(r,c)="\j" THEN LET sc=sc+10: BEEP .01,10: BEEP .04,20: LET a$(r,c)=" ": LET a$(r+22,c)=CHR$ FN c(" "): LET m=m+1: PRINT AT 0,6; INK bf;sc: IF m=CODE a$(22,3) THEN GO TO 2000
  1067 LET xd=d
  1070 GO TO 1020
- 1080 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 THEN GO TO 1020
- 1081 IF a$(r+1,c+1)="\g" THEN GO TO 2100
- 1082 IF NOT FN o(a$(r,c+1)) OR a$(r+1,c+1)<>"\c" THEN GO TO 1020
- 1083 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1084 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1085 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
- 1086 GO TO 1020
- 1090 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN GO TO 1020
- 1091 IF a$(r+1,c-1)="\g" THEN GO TO 2120
- 1092 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\c" THEN GO TO 1020
- 1093 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1094 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1095 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
- 1096 GO TO 1020
+ 1100 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 OR r=21 THEN RETURN 
+ 1102 IF NOT FN o(a$(r,c+1)) THEN RETURN : REM Not open above dig spot
+ 1106 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
+ 1108 IF a$(r+1,c+1)="\g" THEN GO TO 1120: REM Dug
+ 1110 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1112 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1114 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
+ 1116 RETURN 
+ 1120 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN GO TO 1020: REM No support below
+ 1122 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1124 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1126 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
+ 1128 RETURN 
+ 1200 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
+ 1202 IF NOT FN o(a$(r,c-1)) THEN RETURN 
+ 1206 IF b$(r+1,c-1)<>"\c" THEN RETURN 
+ 1208 IF a$(r+1,c-1)="\g" THEN GO TO 1220
+ 1210 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1212 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1214 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
+ 1216 RETURN 
+ 1220 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
+ 1222 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
+ 1224 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
+ 1225 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
+ 1226 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
+ 1230 RETURN 
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
  2001 SOUND 13,0
  2010 CLS 
@@ -185,18 +198,6 @@
  2038 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
  2039 PRINT AT 12,0;"PRESS ANY KEY to start level ";l: PAUSE 0
  2040 GO TO 1000
- 2100 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 THEN GO TO 1020
- 2102 IF NOT FN o(a$(r,c+1)) OR a$(r+1,c+1)<>"\g" OR b$(r+1,c+1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c+1))) THEN GO TO 1020
- 2105 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
- 2106 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
- 2107 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
- 2110 GO TO 1020
- 2120 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN GO TO 1020
- 2122 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN GO TO 1020
- 2124 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
- 2125 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
- 2126 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
- 2130 GO TO 1020
  5000 REM Draw level
  5011 LET m1=CODE a$(22,1): LET m2=CODE a$(22,2)
  5020 FOR a=1 TO 21
@@ -350,7 +351,7 @@
  6750 RETURN 
  6800 REM Rename level
  6810 INPUT "Name:";t$
- 6812 IF LEN t$>24 THEN GO TO 6810
+ 6812 IF LEN t$>24 THEN LET t$=t$( TO 24)
  6820 IF t$<>"" THEN LET a$(22,4 TO 27)=t$
  6830 GO TO 6018
  7000 IF q=0 THEN GO TO 7500
@@ -419,7 +420,7 @@
  8244 PRINT "      walkable location except"
  8246 PRINT "      for a treasure."
  8250 PRINT "S   - Save the level"
- 8252 PRINT "G   - Load a level"
+ 8252 PRINT "G   - Load (get) a level"
  8254 PRINT "X   - Quit without saving"
  8270 INPUT "Press ENTER:";k$
  8299 RETURN 
