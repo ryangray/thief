@@ -189,13 +189,14 @@
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
  2001 SOUND 13,0
  2010 CLS 
- 2020 PRINT AT 10,0;"Prepare the tape for the next     level and press a key ..."
+ 2012 LET sc=sc+tr: REM Bonus for time
+ 2014 PRINT AT 8,11; INK bf;"Bonus: ";tr
+ 2020 PRINT AT 10,0;" Prepare the tape for the next     level and press a key ..."
  2022 IF INKEY$="" THEN GO TO 2022
  2030 LOAD "" DATA A$()
  2031 GO SUB 5200
  2032 IF a$(22,32)=" " THEN GO SUB 5100
  2035 LET l=l+1
- 2036 LET sc=sc+tr: REM Bonus for time
  2037 CLS 
  2038 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
  2039 PRINT AT 12,0;"PRESS ANY KEY to start level ";l: PAUSE 0
@@ -211,7 +212,7 @@
  5090 RETURN 
  5100 REM Colorize a v1 level
  5102 DIM b$(22,32)
- 5104 PRINT AT 0,1;" Colorizing old v1 level ..."
+ 5104 PRINT AT 0,0;"  Colorizing old v1 level ...   "
  5105 BORDER bg: PAPER bg: INK fg
  5106 FOR r=1 TO 22: LET b$(r)=a$(r): NEXT r
  5108 DIM a$(43,32)
@@ -359,7 +360,6 @@
  7000 IF q=0 THEN GO TO 7500
  7001 LET q=q-1: IF q=0 THEN GO TO 7500
  7002 GO SUB 660: SOUND 13,0
- 7010 IF k$<>"d" THEN GO TO 101
  7020 INPUT "Replay, Next level, Quit? ";k$
  7022 PAUSE 30
  7030 IF k$="n" THEN GO TO 2010
@@ -477,11 +477,11 @@
  9048 LET o$(155)=CHR$ 7: REM \l Player, walk left
  9050 LET o$(156)=CHR$ 7: REM \m Player, stand left
  9052 LET o$(157)=CHR$ 7: REM \n Player, climb right
- 9054 LET o$(163)=CHR$ 5: REM \t Brick, diggable, play mode copy
- 9056 LET o$(164)=CHR$ 5: REM \u Brick, fake, edit mode copy
+ 9054 LET o$(163)=CHR$ 5: REM SPECTRUM  Brick, diggable, play mode copy
+ 9056 LET o$(164)=CHR$ 5: REM PLAY  Brick, fake, edit mode copy
  9059 RETURN 
  9098 REM UDG's
- 9099 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u
+ 9099 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s SPECTRUM PLAY 
  9100 RESTORE 9160
  9101 LET a=10: LET b=11
  9102 LET c=12: LET d=13
