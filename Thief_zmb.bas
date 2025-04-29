@@ -58,26 +58,26 @@
   410 LET c=c-1: LET d=1
   411 IF m$="\n" THEN LET m$="\b"
   412 IF m$<>"\b" THEN LET m$="\l"
-  413 PRINT AT r,c-1;m$;a$(x,y)
+  413 PRINT AT r,c-1;m$;p$
   414 POKE FN a(x,y),CODE a$(x+22,y)
   415 RETURN 
   419 REM right
   420 LET c=c+1: LET d=2
   421 IF m$="\n" THEN LET m$="\b"
   422 IF m$<>"\b" THEN LET m$="\i"
-  423 PRINT AT x,y-1;a$(x,y);m$
+  423 PRINT AT x,y-1;p$;m$
   424 POKE FN a(x,y),CODE a$(x+22,y)
   425 RETURN 
   429 REM up
   430 LET r=r-1
   431 IF m$="\n" THEN LET m$="\b"
-  432 PRINT AT x,y-1;a$(x,y);AT r,c-1;m$
+  432 PRINT AT x,y-1;p$;AT r,c-1;m$
   433 POKE FN a(x,y),CODE a$(x+22,y)
   434 RETURN 
   439 REM down
   440 LET r=r+1
   441 IF m$="\n" THEN LET m$="\b"
-  442 PRINT AT x,y-1;a$(x,y);AT r,c-1;m$
+  442 PRINT AT x,y-1;p$;AT r,c-1;m$
   443 POKE FN a(x,y),CODE a$(x+22,y)
   444 RETURN 
 # Main menu
@@ -161,10 +161,11 @@
  1006 LET r=m1: LET c=m2: LET m=0: LET d=2
  1007 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,20;"\a\a\a"( TO q);AT 0,29;ti
  1008 LET x=r: LET y=c: LET xd=d
+ 1009 LET p$=a$(r,c)
 # Top of main loop
  1020 LET m$="\m\a\l\i"(d): LET n$=a$(r+1,c)
 # If on a bar or (on a ladder and below is space, bar, ladder or treasure) show climbing right
- 1021 IF a$(r,c)="\k" OR a$(r,c)="\h" AND (FN o(n$) OR n$="\h" OR n$="\j") THEN LET m$="\n"
+ 1021 IF FN o(n$) OR n$="\h" THEN LET m$="\n"
  1023 LET te=INT (PEEK 23672/64)+4*PEEK 23673
 # Scaling the clock by dividing FRAMES by 64 (60 frames=1 second) to give
 # 20 seconds per treasure.
@@ -174,8 +175,8 @@
  1028 IF tr<=0 THEN GO TO 7000: REM Time expired
 # Check if we fall
 # If we're on the last row, a bar or ladder, then no falling
- 1030 IF a$(r,c)="\k" THEN GO TO 1045
- 1031 IF a$(r,c)="\h" THEN GO TO 1045
+ 1030 IF p$="\k" THEN GO TO 1045
+ 1031 IF p$="\h" THEN GO TO 1045
  1032 IF r=21 THEN GO TO 1045
 # If below us is not a space, bar, fake brick, treasure, or passage then skip
  1033 IF n$=" " THEN GO TO 1040
@@ -186,28 +187,29 @@
  1039 GO TO 1045
 # Fall down one row
  1040 LET x=r: LET y=c: GO SUB 440
-# Did we fall on a treasure?
- 1042 IF a$(r,c)="\j" THEN GO TO 1066
- 1043 LET n$=a$(r+1,c)
- 1044 GO TO 1030
 # If we're on a bar or ladder then show climbing
- 1045 IF a$(r,c)="\k" OR a$(r,c)="\h" THEN LET m$="\n"
- 1046 LET k$=INKEY$
+ 1041 LET p$=n$: IF FN o(p$) OR p$="\h" THEN LET m$="\n"
+# Did we fall on a treasure?
+ 1042 IF p$="\j" THEN GO TO 1067
+ 1043 LET p$=n$: LET n$=a$(r+1,c)
+ 1044 GO TO 1030
+ 1045 LET k$=INKEY$
  1050 LET x=r: LET y=c: LET d=xd-(2 AND xd>2)
  1051 IF k$="z" THEN IF r<21 THEN IF NOT FN s(a$(r+1,c)) THEN GO SUB 440: GO TO 1066
- 1052 IF k$="a" THEN IF r>1 THEN LET n$=a$(r-1,c): IF n$="\h" OR (a$(r,c)="\h" AND NOT FN s(n$)) THEN GO SUB 430: GO TO 1066
+ 1052 IF k$="a" THEN IF r>1 THEN LET n$=a$(r-1,c): IF n$="\h" OR (p$="\h" AND NOT FN s(n$)) THEN GO SUB 430: GO TO 1066
  1053 IF k$="l" THEN IF c<32 THEN IF NOT FN s(a$(r,c+1)) THEN GO SUB 420: GO TO 1066
  1054 IF k$="k" THEN IF c>1 THEN IF NOT FN s(a$(r,c-1)) THEN GO SUB 410: GO TO 1066
- 1055 IF k$="x" THEN IF r>1 AND c>1 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c-1)) THEN GO SUB 430: LET x=r: LET y=c: GO SUB 410: GO TO 1066
- 1056 IF k$="c" THEN IF r>1 AND c<32 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c+1)) THEN GO SUB 430: LET x=r: LET y=c: GO SUB 420: GO TO 1066
+ 1055 IF k$="x" THEN IF r>1 AND c>1 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c-1)) THEN GO SUB 430: LET p$=a$(r,c): LET x=r: LET y=c: GO SUB 410: GO TO 1066
+ 1056 IF k$="c" THEN IF r>1 AND c<32 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c+1)) THEN GO SUB 430: LET p$=a$(r,c): LET x=r: LET y=c: GO SUB 420: GO TO 1066
  1061 IF k$="d" THEN GO TO 7000: REM Die
  1062 IF k$="m" THEN GO SUB 1100: REM Dig right
  1063 IF k$="n" THEN GO SUB 1200: REM Dig left
  1064 IF k$="L" THEN LET d=2: REM Face right
  1065 IF k$="K" THEN LET d=1: REM Face left
 # If got a treasure, score it and check it its the last one
- 1066 IF a$(r,c)="\j" THEN LET sc=sc+10: BEEP .01,10: BEEP .04,20: LET a$(r,c)=" ": LET a$(r+22,c)=CHR$ FN c(" "): LET m=m+1: PRINT AT 0,6; INK bf;sc: IF m=CODE a$(22,3) THEN GO TO 2000
- 1067 LET xd=d
+ 1066 LET p$=a$(r,c)
+ 1067 IF p$="\j" THEN LET sc=sc+10: BEEP .01,10: BEEP .04,20: LET a$(r,c)=" ": LET p$=" ": LET a$(r+22,c)=CHR$ FN c(" "): LET m=m+1: PRINT AT 0,6; INK bf;sc: IF m=CODE a$(22,3) THEN GO TO 2000
+ 1068 LET xd=d
 # End of main loop
  1070 GO TO 1020
 # Dig right
@@ -223,7 +225,6 @@
 # Fill right
 # This has the same criteria as dig, except the block has to be \g which we already checked above,
 # so we don't have to do those checks here. We do require solid below to fill.
-# Probably also move this up to just below the dig code.
  1120 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN GO TO 1020: REM No support below
  1122 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
  1124 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
@@ -309,7 +310,7 @@
  6003 PRINT "EDIT LEVELS"
  6004 INPUT "New";", Current," AND l;" or Load ? ";k$
  6005 PRINT AT 0,0; INK fg; PAPER bg;"SCORE:xxxx LEVEL:xx \m\m\m TIME:xxx"
- 6006 IF k$="c" THEN GO TO 6016
+ 6006 IF k$="c" THEN GO SUB 660: GO TO 6016
  6007 IF k$="n" THEN GO TO 6010
  6008 IF k$="l" THEN GO TO 6400
  6009 GO TO 6004
@@ -336,11 +337,10 @@
  6030 PRINT AT r,c-1; FLASH 1; INK 8; PAPER 8; OVER 1;" "
  6040 LET k$=INKEY$
  6042 LET x=r: LET y=c
- 6050 IF k$="s" THEN GO TO 6200
- 6052 IF k$="g" THEN GO TO 6400
- 6054 IF k$="x" THEN GO TO 6300
- 6056 IF k$="h" THEN GO SUB 8200: CLS : LET k$="c": GO TO 6005
- 6058 IF k$="n" THEN GO TO 6800
+ 6050 IF k$="a" THEN LET r=r-1+(21 AND r=1): GO TO 6100
+ 6052 IF k$="z" THEN LET r=r+1-(21 AND r=21): GO TO 6100
+ 6054 IF k$="l" THEN LET c=c+1-(32 AND c=32): GO TO 6100
+ 6056 IF k$="k" THEN LET c=c-1+(32 AND c=1): GO TO 6100
  6060 IF k$=" " THEN LET i$=" ": GO TO 6120
  6062 IF k$="1" THEN LET i$="\c": GO TO 6140
  6064 IF k$="2" THEN LET i$="\f": GO TO 6120
@@ -350,13 +350,13 @@
  6072 IF k$="6" THEN LET i$="\k": GO TO 6120
  6074 IF k$="7" THEN LET i$="\j": GO TO 6140
  6078 IF k$="8" THEN LET i$="\i": GO TO 6150
- 6090 IF k$="a" AND r>1 THEN LET r=r-1: GO TO 6100
- 6092 IF k$="z" AND r<21 THEN LET r=r+1: GO TO 6100
- 6094 IF k$="l" AND c<32 THEN LET c=c+1: GO TO 6100
- 6096 IF k$="k" AND c>1 THEN LET c=c-1: GO TO 6100
+ 6080 IF k$="s" THEN GO TO 6200
+ 6082 IF k$="g" THEN GO TO 6400
+ 6084 IF k$="x" THEN GO TO 6300
+ 6086 IF k$="h" THEN GO SUB 8200: CLS : LET k$="c": GO TO 6005
+ 6088 IF k$="n" THEN GO TO 6800
  6099 GO TO 6040
-# When leaving old space, print the char from a$ and poke its color
-# If it's the player spot, then print the player and poke its color
+# Leaving old space
  6100 PRINT AT x,y-1; FLASH 0; INK 8; PAPER 8; OVER 1;" "
  6102 LET m$=k$
  6110 GO TO 6030
