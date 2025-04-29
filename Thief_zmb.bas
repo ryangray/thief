@@ -45,41 +45,140 @@
    10 DEF FN b(a$,b$)=PEEK 23563+256*PEEK 23564: REM DEFADD for copying a$ to b$ and back
    11 DEF FN s(a$)=(a$="\::" OR a$="\c"): REM is block "solid"
    12 DEF FN o(a$)=(a$=" " OR a$="\g" OR a$="\k"): REM is block "open"
-   90 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
-   92 GO SUB 9000: REM init
-   94 GO TO 500: REM Main menu
-   99 REM Auto start from tape at 100
-  100 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
-  110 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
-  120 GO TO 92
-  400 REM MOVES
-  409 REM left
+   40 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
+   42 GO SUB 9000: REM init
+   44 GO TO 500: REM Main menu
+   49 REM Auto start from tape at 50
+   50 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 7: CLS 
+   52 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
+   54 GO TO 42
+   99 REM MAIN LOOP
+# Copy new level from a$ into b$ for keeping original data
+  100 DIM b$(43,32): GO SUB 650: BORDER bg: PAPER bg: INK fg: CLS 
+  101 GO SUB 5000: REM Draw level
+  102 LET ti=20*CODE a$(22,3): REM Time allotment, 20 per treasure
+  103 POKE 23672,0: POKE 23673,0: REM Reset FRAMES (lower 2 bytes)
+# Setting FRAMES for my counter rather than saving the whole value and 
+# differencing it with the current.
+  104 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
+  105 PRINT AT 0,0;"SCORE:";TAB 11;"LEVEL:";TAB 24;"TIME:"
+  106 LET r=m1: LET c=m2: LET m=0: LET d=2
+  107 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,20;"\a\a\a"( TO q);AT 0,29;ti
+  108 LET x=r: LET y=c: LET xd=d
+  109 LET p$=a$(r,c)
+# Top of main loop
+  120 LET m$="\m\a\l\i"(d): LET n$=a$(r+1,c)
+# If on a bar or (on a ladder and below is space, bar, ladder or treasure) show climbing right
+  121 IF FN o(n$) OR n$="\h" THEN LET m$="\n"
+  123 LET te=INT (PEEK 23672/64)+4*PEEK 23673
+# Scaling the clock by dividing FRAMES by 64 (60 frames=1 second) to give
+# 20 seconds per treasure.
+  124 LET tr=ti-te
+  125 PRINT AT r,c-1;m$;AT 0,29; INK 8;tr;" " AND tr<100
+  126 SOUND 12,tr
+  128 IF tr<=0 THEN GO TO 7000: REM Time expired
+# Check if we fall
+# If we're on the last row, a bar or ladder, then no falling
+  130 IF p$="\k" THEN GO TO 145
+  131 IF p$="\h" THEN GO TO 145
+  132 IF r=21 THEN GO TO 145
+# If below us is not a space, bar, fake brick, treasure, or passage then skip
+  133 IF n$=" " THEN GO TO 140
+  134 IF n$="\k" THEN GO TO 140
+  135 IF n$="\f" THEN GO TO 140
+  136 IF n$="\j" THEN GO TO 140
+  137 IF n$="\g" THEN GO TO 140
+  139 GO TO 145
+# Fall down one row
+  140 LET x=r: LET y=c: GO SUB 240
+# If we're on a bar or ladder then show climbing
+  141 LET p$=n$: IF FN o(p$) OR p$="\h" THEN LET m$="\n"
+# Did we fall on a treasure?
+  142 IF p$="\j" THEN GO TO 167
+  143 LET p$=n$: LET n$=a$(r+1,c)
+  144 GO TO 130
+  145 LET k$=INKEY$
+  150 LET x=r: LET y=c: LET d=xd-(2 AND xd>2)
+  151 IF k$="z" THEN IF r<21 THEN IF NOT FN s(a$(r+1,c)) THEN GO SUB 240: GO TO 166
+  152 IF k$="a" THEN IF r>1 THEN LET n$=a$(r-1,c): IF n$="\h" OR (p$="\h" AND NOT FN s(n$)) THEN GO SUB 230: GO TO 166
+  153 IF k$="l" THEN IF c<32 THEN IF NOT FN s(a$(r,c+1)) THEN GO SUB 220: GO TO 166
+  154 IF k$="k" THEN IF c>1 THEN IF NOT FN s(a$(r,c-1)) THEN GO SUB 210: GO TO 166
+  155 IF k$="x" THEN IF r>1 AND c>1 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c-1)) THEN GO SUB 230: LET p$=a$(r,c): LET x=r: LET y=c: GO SUB 210: GO TO 166
+  156 IF k$="c" THEN IF r>1 AND c<32 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c+1)) THEN GO SUB 230: LET p$=a$(r,c): LET x=r: LET y=c: GO SUB 220: GO TO 166
+  161 IF k$="d" THEN GO TO 7000: REM Die
+  162 IF k$="m" THEN GO SUB 400: REM Dig right
+  163 IF k$="n" THEN GO SUB 430: REM Dig left
+  164 IF k$="L" THEN LET d=2: REM Face right
+  165 IF k$="K" THEN LET d=1: REM Face left
+# If got a treasure, score it and check it its the last one
+  166 LET p$=a$(r,c)
+  167 IF p$="\j" THEN LET sc=sc+10: BEEP .01,10: BEEP .04,20: LET a$(r,c)=" ": LET p$=" ": LET a$(r+22,c)=CHR$ FN c(" "): LET m=m+1: PRINT AT 0,6; INK bf;sc: IF m=CODE a$(22,3) THEN GO TO 2000
+  168 LET xd=d
+# End of main loop
+  170 GO TO 120
+  200 REM MOVES
+  209 REM left
 # Could consider using 0/1 logical for direction?
-  410 LET c=c-1: LET d=1
-  411 IF m$="\n" THEN LET m$="\b"
-  412 IF m$<>"\b" THEN LET m$="\l"
-  413 PRINT AT r,c-1;m$;p$
-  414 POKE FN a(x,y),CODE a$(x+22,y)
-  415 RETURN 
-  419 REM right
-  420 LET c=c+1: LET d=2
-  421 IF m$="\n" THEN LET m$="\b"
-  422 IF m$<>"\b" THEN LET m$="\i"
-  423 PRINT AT x,y-1;p$;m$
-  424 POKE FN a(x,y),CODE a$(x+22,y)
-  425 RETURN 
-  429 REM up
-  430 LET r=r-1
-  431 IF m$="\n" THEN LET m$="\b"
-  432 PRINT AT x,y-1;p$;AT r,c-1;m$
-  433 POKE FN a(x,y),CODE a$(x+22,y)
-  434 RETURN 
-  439 REM down
-  440 LET r=r+1
-  441 IF m$="\n" THEN LET m$="\b"
-  442 PRINT AT x,y-1;p$;AT r,c-1;m$
-  443 POKE FN a(x,y),CODE a$(x+22,y)
-  444 RETURN 
+  210 LET c=c-1: LET d=1
+  211 IF m$="\n" THEN LET m$="\b"
+  212 IF m$<>"\b" THEN LET m$="\l"
+  213 PRINT AT r,c-1;m$;p$
+  214 POKE FN a(x,y),CODE a$(x+22,y)
+  215 RETURN 
+  219 REM right
+  220 LET c=c+1: LET d=2
+  221 IF m$="\n" THEN LET m$="\b"
+  222 IF m$<>"\b" THEN LET m$="\i"
+  223 PRINT AT x,y-1;p$;m$
+  224 POKE FN a(x,y),CODE a$(x+22,y)
+  225 RETURN 
+  229 REM up
+  230 LET r=r-1
+  231 IF m$="\n" THEN LET m$="\b"
+  232 PRINT AT x,y-1;p$;AT r,c-1;m$
+  233 POKE FN a(x,y),CODE a$(x+22,y)
+  234 RETURN 
+  239 REM down
+  240 LET r=r+1
+  241 IF m$="\n" THEN LET m$="\b"
+  242 PRINT AT x,y-1;p$;AT r,c-1;m$
+  243 POKE FN a(x,y),CODE a$(x+22,y)
+  244 RETURN 
+# Dig right
+  400 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 OR r=21 THEN RETURN 
+  402 IF NOT FN o(a$(r,c+1)) THEN RETURN : REM Not open above dig spot
+# 404 IF NOT FN s(a$(r+1,c)) THEN RETURN : REM Not solid below us [Makes Vault pile impossible]
+  406 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
+  408 IF a$(r+1,c+1)="\g" THEN GO TO 420: REM Dug
+  410 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
+  412 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
+  414 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
+  416 RETURN 
+# Fill right
+# This has the same criteria as dig, except the block has to be \g which we already checked above,
+# so we don't have to do those checks here. We do require solid below to fill.
+  420 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN RETURN : REM No support below
+  422 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
+  424 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
+  426 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
+  428 RETURN 
+# Dig left
+  430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
+  432 IF NOT FN o(a$(r,c-1)) THEN RETURN 
+#  434 IF NOT FN s(a$(r+1,c)) THEN RETURN 
+  436 IF b$(r+1,c-1)<>"\c" THEN RETURN 
+  438 IF a$(r+1,c-1)="\g" THEN GO TO 450
+  440 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
+  442 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
+  444 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
+  446 RETURN 
+# Fill left
+  450 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
+  452 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
+  454 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
+  455 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
+  456 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
+  458 RETURN 
 # Main menu
   500 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
   502 GO SUB 8500: REM Draw top of title screen
@@ -148,105 +247,6 @@
   916 IF a$(22,32)=" " THEN GO SUB 5100
   920 LET q=3: LET sc=0: LET l=1
   930 GO TO 2039
-  999 REM MAIN LOOP
-# Copy new level from a$ into b$ for keeping original data
- 1000 DIM b$(43,32): GO SUB 650: BORDER bg: PAPER bg: INK fg: CLS 
- 1001 GO SUB 5000: REM Draw level
- 1002 LET ti=20*CODE a$(22,3): REM Time allotment, 20 per treasure
- 1003 POKE 23672,0: POKE 23673,0: REM Reset FRAMES (lower 2 bytes)
-# Setting FRAMES for my counter rather than saving the whole value and 
-# differencing it with the current.
- 1004 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
- 1005 PRINT AT 0,0;"SCORE:";TAB 11;"LEVEL:";TAB 24;"TIME:"
- 1006 LET r=m1: LET c=m2: LET m=0: LET d=2
- 1007 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,20;"\a\a\a"( TO q);AT 0,29;ti
- 1008 LET x=r: LET y=c: LET xd=d
- 1009 LET p$=a$(r,c)
-# Top of main loop
- 1020 LET m$="\m\a\l\i"(d): LET n$=a$(r+1,c)
-# If on a bar or (on a ladder and below is space, bar, ladder or treasure) show climbing right
- 1021 IF FN o(n$) OR n$="\h" THEN LET m$="\n"
- 1023 LET te=INT (PEEK 23672/64)+4*PEEK 23673
-# Scaling the clock by dividing FRAMES by 64 (60 frames=1 second) to give
-# 20 seconds per treasure.
- 1024 LET tr=ti-te
- 1025 PRINT AT r,c-1;m$;AT 0,29; INK 8;tr;" " AND tr<100
- 1026 SOUND 12,tr
- 1028 IF tr<=0 THEN GO TO 7000: REM Time expired
-# Check if we fall
-# If we're on the last row, a bar or ladder, then no falling
- 1030 IF p$="\k" THEN GO TO 1045
- 1031 IF p$="\h" THEN GO TO 1045
- 1032 IF r=21 THEN GO TO 1045
-# If below us is not a space, bar, fake brick, treasure, or passage then skip
- 1033 IF n$=" " THEN GO TO 1040
- 1034 IF n$="\k" THEN GO TO 1040
- 1035 IF n$="\f" THEN GO TO 1040
- 1036 IF n$="\j" THEN GO TO 1040
- 1037 IF n$="\g" THEN GO TO 1040
- 1039 GO TO 1045
-# Fall down one row
- 1040 LET x=r: LET y=c: GO SUB 440
-# If we're on a bar or ladder then show climbing
- 1041 LET p$=n$: IF FN o(p$) OR p$="\h" THEN LET m$="\n"
-# Did we fall on a treasure?
- 1042 IF p$="\j" THEN GO TO 1067
- 1043 LET p$=n$: LET n$=a$(r+1,c)
- 1044 GO TO 1030
- 1045 LET k$=INKEY$
- 1050 LET x=r: LET y=c: LET d=xd-(2 AND xd>2)
- 1051 IF k$="z" THEN IF r<21 THEN IF NOT FN s(a$(r+1,c)) THEN GO SUB 440: GO TO 1066
- 1052 IF k$="a" THEN IF r>1 THEN LET n$=a$(r-1,c): IF n$="\h" OR (p$="\h" AND NOT FN s(n$)) THEN GO SUB 430: GO TO 1066
- 1053 IF k$="l" THEN IF c<32 THEN IF NOT FN s(a$(r,c+1)) THEN GO SUB 420: GO TO 1066
- 1054 IF k$="k" THEN IF c>1 THEN IF NOT FN s(a$(r,c-1)) THEN GO SUB 410: GO TO 1066
- 1055 IF k$="x" THEN IF r>1 AND c>1 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c-1)) THEN GO SUB 430: LET p$=a$(r,c): LET x=r: LET y=c: GO SUB 410: GO TO 1066
- 1056 IF k$="c" THEN IF r>1 AND c<32 THEN IF FN o(a$(r-1,c)) AND FN o(a$(r-1,c+1)) THEN GO SUB 430: LET p$=a$(r,c): LET x=r: LET y=c: GO SUB 420: GO TO 1066
- 1061 IF k$="d" THEN GO TO 7000: REM Die
- 1062 IF k$="m" THEN GO SUB 1100: REM Dig right
- 1063 IF k$="n" THEN GO SUB 1200: REM Dig left
- 1064 IF k$="L" THEN LET d=2: REM Face right
- 1065 IF k$="K" THEN LET d=1: REM Face left
-# If got a treasure, score it and check it its the last one
- 1066 LET p$=a$(r,c)
- 1067 IF p$="\j" THEN LET sc=sc+10: BEEP .01,10: BEEP .04,20: LET a$(r,c)=" ": LET p$=" ": LET a$(r+22,c)=CHR$ FN c(" "): LET m=m+1: PRINT AT 0,6; INK bf;sc: IF m=CODE a$(22,3) THEN GO TO 2000
- 1068 LET xd=d
-# End of main loop
- 1070 GO TO 1020
-# Dig right
- 1100 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 OR r=21 THEN RETURN 
- 1102 IF NOT FN o(a$(r,c+1)) THEN RETURN : REM Not open above dig spot
-# 1104 IF NOT FN s(a$(r+1,c)) THEN RETURN : REM Not solid below us [Makes Vault pile impossible]
- 1106 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
- 1108 IF a$(r+1,c+1)="\g" THEN GO TO 1120: REM Dug
- 1110 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1112 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1114 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
- 1116 RETURN 
-# Fill right
-# This has the same criteria as dig, except the block has to be \g which we already checked above,
-# so we don't have to do those checks here. We do require solid below to fill.
- 1120 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN GO TO 1020: REM No support below
- 1122 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1124 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1126 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
- 1128 RETURN 
-# Dig left
- 1200 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
- 1202 IF NOT FN o(a$(r,c-1)) THEN RETURN 
-# 1204 IF NOT FN s(a$(r+1,c)) THEN RETURN 
- 1206 IF b$(r+1,c-1)<>"\c" THEN RETURN 
- 1208 IF a$(r+1,c-1)="\g" THEN GO TO 1220
- 1210 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1212 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1214 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
- 1216 RETURN 
-# Fill left
- 1220 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
- 1222 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
- 1224 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
- 1225 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
- 1226 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
- 1230 RETURN 
 # Level finished, load next one
  2000 FOR a=20 TO 50 STEP 5: BEEP .01,a: NEXT a
  2001 SOUND 13,0
@@ -261,7 +261,7 @@
  2037 CLS 
  2038 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
  2039 PRINT AT 12,0;"PRESS ANY KEY to start level ";l: PAUSE 0
- 2040 GO TO 1000
+ 2040 GO TO 100
  5000 REM Draw level
  5011 LET m1=CODE a$(22,1): LET m2=CODE a$(22,2)
  5020 FOR a=1 TO 21
@@ -433,13 +433,13 @@
  7001 LET q=q-1: IF q=0 THEN GO TO 7500
 # 7002 FOR a=1 TO 43: SOUND 11,a: LET a$(a)=b$(a): NEXT a: SOUND 13,0
  7002 GO SUB 660: SOUND 13,0
- 7010 IF k$<>"d" THEN GO TO 1001
+ 7010 IF k$<>"d" THEN GO TO 101
  7020 INPUT "Replay, Next level, Quit? ";k$
  7022 PAUSE 30
  7030 IF k$="n" THEN GO TO 2010
  7040 IF k$="q" THEN GO TO 7530
  7042 IF k$="e" THEN GO TO 6000
- 7050 GO TO 1001
+ 7050 GO TO 101
 # GAME OVER
  7500 SOUND 8,15;9,15;7,39;6,0;12,50;13,0
  7502 FOR a=30 TO 0 STEP -4: SOUND 6,a: NEXT a
