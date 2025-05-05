@@ -431,9 +431,9 @@
  6830 GO TO 6018
 # Ran out of time playing level or pressed "d"
  7000 IF q=0 THEN GO TO 7500
- 7001 LET q=q-1: IF q=0 THEN GO TO 7500
-# 7002 FOR a=1 TO 43: SOUND 11,a: LET a$(a)=b$(a): NEXT a: SOUND 13,0
- 7002 GO SUB 660: SOUND 13,0
+ 7002 LET q=q-1: IF q=0 THEN GO TO 7500
+ 7004 FOR a=1 TO 21: SOUND 11,a: NEXT a: SOUND 13,0
+ 7006 GO SUB 660: SOUND 13,0
 # 7010 IF k$<>"d" THEN GO TO 101
  7020 INPUT "Replay, Next level, Quit? ";k$
  7022 PAUSE 30
