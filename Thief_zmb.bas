@@ -158,17 +158,17 @@
 # 404 IF NOT FN s(a$(r+1,c)) THEN RETURN : REM Not solid below us [Makes Vault pile impossible]
   406 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
   408 IF a$(r+1,c+1)="\g" THEN GO TO 420: REM Dug
-  410 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
-  412 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
-  414 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
+  410 PRINT AT r+1,c; INK 8;"\d"; AT r,c-1;"\q": BEEP .01,0: PAUSE 10
+  412 PRINT AT r+1,c; INK 8;"\e"; AT r,c-1;"\r": BEEP .01,0: PAUSE 10
+  414 PRINT AT r+1,c; INK 8;"\g"; AT r,c-1;"\q": BEEP .01,0: LET a$(r+1,c+1)="\g"
   416 RETURN 
 # Fill right
 # This has the same criteria as dig, except the block has to be \g which we already checked above,
 # so we don't have to do those checks here. We do require solid below to fill.
   420 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN RETURN : REM No support below
-  422 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
-  424 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
-  426 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
+  422 PRINT AT r+1,c; INK 8;"\e"; AT r,c-1;"\q": BEEP .01,0: PAUSE 10
+  424 PRINT AT r+1,c; INK 8;"\d"; AT r,c-1;"\r": BEEP .01,0: PAUSE 10
+  426 PRINT AT r+1,c; INK 8;"\c"; AT r,c-1;"\q": BEEP .01,0: LET a$(r+1,c+1)="\c"
   428 RETURN 
 # Dig left
   430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
@@ -176,16 +176,16 @@
 #  434 IF NOT FN s(a$(r+1,c)) THEN RETURN 
   436 IF b$(r+1,c-1)<>"\c" THEN RETURN 
   438 IF a$(r+1,c-1)="\g" THEN GO TO 450
-  440 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
-  442 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
-  444 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
+  440 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  442 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  444 PRINT AT r+1,c-2; INK 8;"\g"; AT r,c-1;"\o": BEEP .01,0: LET a$(r+1,c-1)="\g"
   446 RETURN 
 # Fill left
   450 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
   452 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
-  454 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
-  455 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
-  456 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
+  454 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  455 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  456 PRINT AT r+1,c-2; INK 8;"\c"; AT r,c-1;"\o": BEEP .01,0: LET a$(r+1,c-1)="\c"
   458 RETURN 
 # Main menu
   500 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
@@ -586,9 +586,14 @@
  9048 LET o$(155)=CHR$ 7: REM \l Player, walk left
  9050 LET o$(156)=CHR$ 7: REM \m Player, stand left
  9052 LET o$(157)=CHR$ 7: REM \n Player, climb right
- 9054 LET o$(163)=CHR$ 5: REM \t Brick, diggable, play mode copy
- 9056 LET o$(164)=CHR$ 5: REM \u Brick, fake, edit mode copy
- 9059 RETURN 
+ 9054 LET o$(157)=CHR$ 7: REM \n Player, dig left down
+ 9056 LET o$(157)=CHR$ 7: REM \n Player, dig left up
+ 9058 LET o$(157)=CHR$ 7: REM \n Player, dig right down
+ 9060 LET o$(157)=CHR$ 7: REM \n Player, dig right up
+ 9062 LET o$(157)=CHR$ 5: REM \n Dug dirt pile
+ 9064 LET o$(163)=CHR$ 5: REM \t Brick, diggable, play mode copy
+ 9066 LET o$(164)=CHR$ 5: REM \u Brick, fake, edit mode copy
+ 9069 RETURN 
 # Load UDGs
 # Sound channel C is fine tuned based on the UDG data byte while loading.
  9098 REM UDG's
@@ -649,16 +654,16 @@
  9172 DATA "1818081C3C181838"
 # \n Player climb right
  9173 DATA "1A1A527C181C2660"
-# \o Big T
- 9174 DATA "FFFF181818181818"
-# \p Big I
- 9175 DATA "FFFF18181818FFFF"
-# \q Big M
- 9176 DATA "C3E7FFDBC3C3C3C3"
-# \r Big E
- 9177 DATA "FFFFC0FCFCC0FFFF"
-# \s Big :
- 9178 DATA "0018180000181800"
+# \o Player dig left down
+ 9174 DATA "3030181C1C3854D4"
+# \p Player dig left up
+ 9175 DATA "1898C83C1C181414"
+# \q Player dig right down
+ 9176 DATA "0C0C1838381C2A2B"
+# \r Player dig right up
+ 9177 DATA "1819133C38182828"
+# \s Dig dirt pile
+ 9178 DATA "8800220088142A55"
 # \t Brick solid duplicate
  9179 DATA "FFCC3333CCCC3333"
 # \u Brick fake for edit mode
