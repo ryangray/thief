@@ -55,9 +55,9 @@
    99 REM MAIN LOOP
 # Copy new level from a$ into b$ for keeping original data
   100 DIM b$(43,32): GO SUB 650: BORDER bg: PAPER bg: INK fg: CLS 
-  101 GO SUB 5000: REM Draw level
+  101 LET m=0: LET d=2
   102 LET ti=20*CODE a$(22,3): REM Time allotment, 20 per treasure
-  103 LET r=m1: LET c=m2: LET m=0: LET d=2
+  103 GO SUB 5000: LET r=m1: LET c=m2: REM Draw level
   104 POKE 23672,0: POKE 23673,0: REM Reset FRAMES (lower 2 bytes)
 # Setting FRAMES for my counter rather than saving the whole value and 
 # differencing it with the current.
@@ -449,15 +449,19 @@
  7002 LET q=q-1: IF q=0 THEN GO TO 7500
  7004 SOUND 12,0
  7006 FOR a=1 TO 21: SOUND 11,a: NEXT a
- 7008 GO SUB 660: SOUND 13,0
- 7020 INPUT "Replay, Next level, Quit? ";k$
+ 7008 SOUND 13,0
+ 7020 INPUT "Continue/Redo/Next/Quit? ";k$
  7022 PAUSE 30
+ 7024 IF k$="c" THEN GO TO 7040
+ 7026 GO SUB 660
  7030 IF k$="n" THEN GO TO 2010
- 7040 IF k$="q" THEN GO TO 7530
- 7042 IF k$="e" THEN GO TO 6000
-# 7044 IF k$="r" AND tr THEN GO TO 101: REM Redo
- 7046 IF k$="r" AND NOT tr THEN LET ti=20*(CODE a$(22,3)-m)+20: GO TO 104
- 7048 GO TO 7020
+ 7032 IF k$="q" THEN GO TO 7530
+ 7034 IF k$="e" THEN GO TO 6000
+ 7036 IF k$="r" THEN GO TO 101
+ 7039 GO TO 7020
+ 7040 LET ti=tr+2
+ 7042 IF tr<=0 THEN LET ti=20*(CODE a$(22,3)-m)+20
+ 7049 GO TO 103
 # GAME OVER
  7500 SOUND 8,15;9,15;7,39;6,0;12,50;13,0
  7502 FOR a=30 TO 0 STEP -4: SOUND 6,a: NEXT a
