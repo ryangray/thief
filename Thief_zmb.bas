@@ -31,7 +31,9 @@
 # f$ - filename
 # k$ - Key pressed
 # m$ - Man character: left/right with stand/walk/climb variants
+# n$ - Local cache of various a$() characters to save on repeated 2D indexing
 # o$ - Char to color map: o$(CODE a$(r,c))=CHR$ color
+# p$ - a$ character at old player location
 # t$ - Title of level [saved in a$(22,4 TO 27)]
 #
 # Same SOUND setup found at 502 on autorun, so must be here in case you just use RUN
@@ -49,9 +51,10 @@
    42 GO SUB 9000: REM init
    44 GO TO 500: REM Main menu
    49 REM Auto start from tape at 50
-   50 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 0: CLS 
-   52 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
-   54 GO TO 42
+   50 LOAD "Thief UDGs"CODE USR "a",168
+   52 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 0: CLS 
+   54 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
+   59 GO TO 42
    99 REM MAIN LOOP
 # Copy new level from a$ into b$ for keeping original data
   100 DIM b$(43,32): GO SUB 650: BORDER bg: PAPER bg: INK fg: CLS 
@@ -158,18 +161,18 @@
 # 404 IF NOT FN s(a$(r+1,c)) THEN RETURN : REM Not solid below us [Makes Vault pile impossible]
   406 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
   408 IF a$(r+1,c+1)="\g" THEN GO TO 420: REM Dug
-  410 PRINT AT r+1,c; INK 8;"\d"; AT r,c-1;"\q": BEEP .01,0: PAUSE 10
-  412 PRINT AT r+1,c; INK 8;"\e"; AT r,c-1;"\r": BEEP .01,0: PAUSE 10
-  414 PRINT AT r+1,c; INK 8;"\g"; AT r,c-1;"\q": BEEP .01,0
+  410 PRINT AT r+1,c; INK 8;"\d";AT r,c-1;"\q": BEEP .01,0: PAUSE 10
+  412 PRINT AT r+1,c; INK 8;"\e";AT r,c-1;"\r": BEEP .01,0: PAUSE 10
+  414 PRINT AT r+1,c; INK 8;"\g";AT r,c-1;"\q": BEEP .01,0
   416 LET a$(r+1,c+1)="\g"
   418 RETURN 
 # Fill right
 # This has the same criteria as dig, except the block has to be \g which we already checked above,
 # so we don't have to do those checks here. We do require solid below to fill.
   420 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN RETURN : REM No support below
-  422 PRINT AT r+1,c; INK 8;"\e"; AT r,c-1;"\q": BEEP .01,0: PAUSE 10
-  424 PRINT AT r+1,c; INK 8;"\d"; AT r,c-1;"\r": BEEP .01,0: PAUSE 10
-  426 PRINT AT r+1,c; INK 8;"\c"; AT r,c-1;"\q": BEEP .01,0
+  422 PRINT AT r+1,c; INK 8;"\e";AT r,c-1;"\q": BEEP .01,0: PAUSE 10
+  424 PRINT AT r+1,c; INK 8;"\d";AT r,c-1;"\r": BEEP .01,0: PAUSE 10
+  426 PRINT AT r+1,c; INK 8;"\c";AT r,c-1;"\q": BEEP .01,0
   428 LET a$(r+1,c+1)="\c"
   429 RETURN 
 # Dig left
@@ -178,24 +181,23 @@
 #  434 IF NOT FN s(a$(r+1,c)) THEN RETURN 
   436 IF b$(r+1,c-1)<>"\c" THEN RETURN 
   438 IF a$(r+1,c-1)="\g" THEN GO TO 450
-  440 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
-  442 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
-  444 PRINT AT r+1,c-2; INK 8;"\g"; AT r,c-1;"\o": BEEP .01,0
+  440 PRINT AT r+1,c-2; INK 8;"\d";AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  442 PRINT AT r+1,c-2; INK 8;"\e";AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  444 PRINT AT r+1,c-2; INK 8;"\g";AT r,c-1;"\o": BEEP .01,0
   446 LET a$(r+1,c-1)="\g"
   448 RETURN 
 # Fill left
   450 IF r<21 AND NOT FN s(a$(r+2,c-1)) THEN RETURN 
-  452 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
-  454 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
-  456 PRINT AT r+1,c-2; INK 8;"\c"; AT r,c-1;"\o": BEEP .01,0
+  452 PRINT AT r+1,c-2; INK 8;"\e";AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  454 PRINT AT r+1,c-2; INK 8;"\d";AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  456 PRINT AT r+1,c-2; INK 8;"\c";AT r,c-1;"\o": BEEP .01,0
   458 LET a$(r+1,c-1)="\c"
   459 RETURN 
 # Main menu
   500 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
   502 GO SUB 8500: REM Draw top of title screen
   504 PRINT AT 14,10;"Please wait"
-  506 GO SUB 9100: REM Load UDGs
-  507 GO SUB 6600: REM Fake brick
+  506 GO SUB 6600: REM Fake brick
   508 GO SUB 8560: REM Draw bottom of screen
   510 PRINT AT 12,9;"\ :"; INVERSE 1;"P"; INVERSE 0;"\: lay game   "
   512 PRINT AT 14,9;"\ :"; INVERSE 1;"K"; INVERSE 0;"\: eys \ :"; INVERSE 1;"H"; INVERSE 0;"\: elp"
@@ -602,81 +604,6 @@
  9064 LET o$(163)=CHR$ 5: REM \t Brick, diggable, play mode copy
  9066 LET o$(164)=CHR$ 5: REM \u Brick, fake, edit mode copy
  9069 RETURN 
-# Load UDGs
-# Sound channel C is fine tuned based on the UDG data byte while loading.
- 9098 REM UDG's
- 9099 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u
- 9100 RESTORE 9160
- 9101 LET a=10: LET b=11
- 9102 LET c=12: LET d=13
- 9103 LET e=14: LET f=15
- 9109 SOUND 10,12;5,2
- 9110 LET g=USR "a"
- 9111 LET m=0
- 9112 READ k$
- 9113 FOR i=1 TO LEN k$-1 STEP 2
- 9114 LET j=PEEK g
- 9115 LET k=VAL k$(i)*16+VAL k$(i+1)
- 9116 IF j<>k THEN LET m=1
- 9117 POKE g,k: SOUND 4,k
- 9118 LET g=g+1
- 9119 NEXT i
- 9120 IF m=0 THEN GO TO 9150: REM Skip the rest
- 9130 FOR h=2 TO 21
- 9132 READ k$
- 9134 FOR i=1 TO LEN k$-1 STEP 2
- 9136 LET k=VAL k$(i)*16+VAL k$(i+1)
- 9138 POKE g,k: SOUND 4,k
- 9140 LET g=g+1
- 9142 NEXT i
- 9144 NEXT h
-# Ch. C note before menu?
- 9150 SOUND 10,16;4,20;5,10
- 9152 RETURN 
- 9159 REM UDG data
-# \a Player stand right
- 9160 DATA "181810383C18181C"
-# \b Player climb left
- 9161 DATA "58584A3E18386406"
-# \c Brick solid
- 9162 DATA "FFCC3333CCCC3333"
-# \d Brick dug 1
- 9163 DATA "89802333CCCC3333"
-# \e Brick dug 2
- 9164 DATA "8800240188C43333"
-# \f Brick fake (looks like solid for play mode, checker for edit mode)
- 9165 DATA "FFCC3333CCCC3333"
-# \g Passage brick (walk through like in background)
- 9166 DATA "8800220088002200"
-# \h Ladder
- 9167 DATA "427E4242427E4242"
-# \i Player walk right
- 9168 DATA "181810385E186446"
-# \j Treasure
- 9169 DATA "000000003C5E7E00"
-# \k Overhead bar
- 9170 DATA "00FF000000000000"
-# \l Player walk left
- 9171 DATA "1818081C7A182662"
-# \m Player stand left
- 9172 DATA "1818081C3C181838"
-# \n Player climb right
- 9173 DATA "1A1A527C181C2660"
-# \o Player dig left down
- 9174 DATA "3030181C1C3854D4"
-# \p Player dig left up
- 9175 DATA "1898C83C1C181414"
-# \q Player dig right down
- 9176 DATA "0C0C1838381C2A2B"
-# \r Player dig right up
- 9177 DATA "1819133C38182828"
-# \s Dug dirt pile
- 9178 DATA "8800220088142A55"
-# \t Brick solid duplicate
- 9179 DATA "FFCC3333CCCC3333"
-# \u Brick fake for edit mode
- 9180 DATA "8888222288882222"
- 9989 STOP 
  9990 CLEAR 
  9992 SAVE "Thief" LINE 50
  9994 RUN 50

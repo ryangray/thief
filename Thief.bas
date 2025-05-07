@@ -14,18 +14,19 @@
    42 GO SUB 9000: REM init
    44 GO TO 500: REM Main menu
    49 REM Auto start from tape at 50
-   50 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 0: CLS 
-   52 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
-   54 GO TO 42
+   50 LOAD "Thief UDGs"CODE USR "a",168
+   52 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 0: CLS 
+   54 PRINT AT 12,9; FLASH 1;"STOP THE TAPE"
+   59 GO TO 42
    99 REM MAIN LOOP
   100 DIM b$(43,32): GO SUB 650: BORDER bg: PAPER bg: INK fg: CLS 
-  101 GO SUB 5000: REM Draw level
+  101 LET m=0: LET d=2
   102 LET ti=20*CODE a$(22,3): REM Time allotment, 20 per treasure
-  103 LET r=m1: LET c=m2: LET m=0: LET d=2
+  103 GO SUB 5000: LET r=m1: LET c=m2: REM Draw level
   104 POKE 23672,0: POKE 23673,0: REM Reset FRAMES (lower 2 bytes)
   105 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
   106 PRINT AT 0,0;"SCORE:";TAB 11;"LEVEL:";TAB 24;"TIME:"
-  107 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,20;"\a\a\a"( TO q);AT 0,29;ti
+  107 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,19;" \a\a\a"( TO q);AT 0,29;ti
   108 LET x=r: LET y=c: LET xd=d: LET z$="."
   109 LET p$=a$(r,c)
   120 LET m$="\m\a\l\i"(d): LET n$=a$(r+1,c)
@@ -51,7 +52,7 @@
   144 GO TO 130
   145 LET k$=INKEY$
   150 LET x=r: LET y=c: LET d=xd-(2 AND xd>2)
-  151 IF k$="" THEN LET s=|(1,1): LET n=|(2,1): LET k$=".az-k..-l...D.-Kxn-Lcm"(s+1+11*n): IF z$="D" AND k$="a" THEN LET k$="d"
+  151 IF k$="" THEN LET s= STICK (1,1): LET n= STICK (2,1): LET k$=".az-k..-l...D.-Kxn-Lcm"(s+1+11*n): IF z$="D" AND k$="a" THEN LET k$="d"
   152 LET z$=k$
   153 IF k$="z" THEN IF r<21 THEN IF NOT FN s(a$(r+1,c)) THEN GO SUB 240: GO TO 166
   154 IF k$="a" THEN IF r>1 THEN LET n$=a$(r-1,c): IF n$="\h" OR (p$="\h" AND NOT FN s(n$)) THEN GO SUB 230: GO TO 166
@@ -105,34 +106,36 @@
   402 IF NOT FN o(a$(r,c+1)) THEN RETURN : REM Not open above dig spot
   406 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
   408 IF a$(r+1,c+1)="\g" THEN GO TO 420: REM Dug
-  410 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
-  412 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
-  414 PRINT AT r+1,c; INK 8;"\g": BEEP .01,0: LET a$(r+1,c+1)="\g"
-  416 RETURN 
+  410 PRINT AT r+1,c; INK 8;"\d";AT r,c-1;"\q": BEEP .01,0: PAUSE 10
+  412 PRINT AT r+1,c; INK 8;"\e";AT r,c-1;"\r": BEEP .01,0: PAUSE 10
+  414 PRINT AT r+1,c; INK 8;"\g";AT r,c-1;"\q": BEEP .01,0
+  416 LET a$(r+1,c+1)="\g"
+  418 RETURN 
   420 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN RETURN : REM No support below
-  422 PRINT AT r+1,c; INK 8;"\e": BEEP .01,0: PAUSE 10
-  424 PRINT AT r+1,c; INK 8;"\d": BEEP .01,0: PAUSE 10
-  426 PRINT AT r+1,c; INK 8;"\c": BEEP .01,0: LET a$(r+1,c+1)="\c"
-  428 RETURN 
-  430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
+  422 PRINT AT r+1,c; INK 8;"\e";AT r,c-1;"\q": BEEP .01,0: PAUSE 10
+  424 PRINT AT r+1,c; INK 8;"\d";AT r,c-1;"\r": BEEP .01,0: PAUSE 10
+  426 PRINT AT r+1,c; INK 8;"\c";AT r,c-1;"\q": BEEP .01,0
+  428 LET a$(r+1,c+1)="\c"
+  429 RETURN 
+  430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR r=21 THEN RETURN 
   432 IF NOT FN o(a$(r,c-1)) THEN RETURN 
   436 IF b$(r+1,c-1)<>"\c" THEN RETURN 
   438 IF a$(r+1,c-1)="\g" THEN GO TO 450
-  440 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
-  442 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
-  444 PRINT AT r+1,c-2; INK 8;"\g": BEEP .01,0: LET a$(r+1,c-1)="\g"
-  446 RETURN 
-  450 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
-  452 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
-  454 PRINT AT r+1,c-2; INK 8;"\e": BEEP .01,0: PAUSE 10
-  455 PRINT AT r+1,c-2; INK 8;"\d": BEEP .01,0: PAUSE 10
-  456 PRINT AT r+1,c-2; INK 8;"\c": BEEP .01,0: LET a$(r+1,c-1)="\c"
-  458 RETURN 
+  440 PRINT AT r+1,c-2; INK 8;"\d";AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  442 PRINT AT r+1,c-2; INK 8;"\e";AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  444 PRINT AT r+1,c-2; INK 8;"\g";AT r,c-1;"\o": BEEP .01,0
+  446 LET a$(r+1,c-1)="\g"
+  448 RETURN 
+  450 IF r<21 AND NOT FN s(a$(r+2,c-1)) THEN RETURN 
+  452 PRINT AT r+1,c-2; INK 8;"\e";AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  454 PRINT AT r+1,c-2; INK 8;"\d";AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  456 PRINT AT r+1,c-2; INK 8;"\c";AT r,c-1;"\o": BEEP .01,0
+  458 LET a$(r+1,c-1)="\c"
+  459 RETURN 
   500 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
   502 GO SUB 8500: REM Draw top of title screen
   504 PRINT AT 14,10;"Please wait"
-  506 GO SUB 9100: REM Load UDGs
-  507 GO SUB 6600: REM Fake brick
+  506 GO SUB 6600: REM Fake brick
   508 GO SUB 8560: REM Draw bottom of screen
   510 PRINT AT 12,9;"\ :"; INVERSE 1;"P"; INVERSE 0;"\: lay game   "
   512 PRINT AT 14,9;"\ :"; INVERSE 1;"K"; INVERSE 0;"\: eys \ :"; INVERSE 1;"H"; INVERSE 0;"\: elp"
@@ -141,18 +144,18 @@
   521 FOR b=13 TO 0 STEP -1: SOUND 10,b
   522 FOR a=31 TO 0 STEP -1: SOUND 6,a
   523 LET k$=INKEY$
-  524 IF k$="" AND NOT |(2,1) THEN GO TO 530
+  524 IF k$="" AND NOT STICK (2,1) THEN GO TO 530
   525 SOUND 13,0;7,63;8,0;9,0;10,0
   526 IF k$="h" THEN GO SUB 8100: INK 0: PAPER 7: BORDER bg: CLS : GO TO 502
-  527 IF k$="p" OR |(2,1) THEN GO TO 900
+  527 IF k$="p" OR STICK (2,1) THEN GO TO 900
   528 IF k$="e" THEN GO TO 6000
   529 IF k$="k" THEN GO SUB 8000: GO TO 510
   530 NEXT a: NEXT b
   535 SOUND 7,56;10,16;6,0
   540 LET k$=INKEY$
-  541 IF k$="" AND NOT |(2,1) THEN GO TO 540
+  541 IF k$="" AND NOT STICK (2,1) THEN GO TO 540
   542 SOUND 13,0;7,63;8,0;9,0;10,0
-  543 IF k$="p" OR |(2,1) THEN GO TO 900
+  543 IF k$="p" OR STICK (2,1) THEN GO TO 900
   544 IF k$="e" THEN GO TO 6000
   545 IF k$="k" THEN GO SUB 8000: GO TO 510
   546 IF k$="h" THEN GO SUB 8100: INK 0: PAPER 7: BORDER bg: CLS : GO TO 502
@@ -184,7 +187,7 @@
   684 POKE 23563,bl: POKE 23564,bh: REM Set DEFADD
   686 RETURN 
   700 INPUT "": PRINT #0;"   Press a key or button ..."
-  710 IF INKEY$="" AND |(2,1)=0 THEN GO TO 710
+  710 IF INKEY$="" AND STICK (2,1)=0 THEN GO TO 710
   720 INPUT "": RETURN 
   900 BORDER bg: PAPER bg: INK fg: CLS 
   902 PRINT AT 10,0;"  Press a key or button when"'"   ready to load the first"'"       level from tape"
@@ -193,7 +196,7 @@
   910 LOAD "" DATA A$()
   911 GO SUB 5200
   912 CLS 
-  915 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
+  915 PRINT AT 10,9; FLASH 1;"STOP THE TAPE"
   916 IF a$(22,32)=" " THEN GO SUB 5100
   920 LET q=3: LET sc=0: LET l=1
   930 GO TO 2039
@@ -209,7 +212,7 @@
  2032 IF a$(22,32)=" " THEN GO SUB 5100
  2035 LET l=l+1
  2037 CLS 
- 2038 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
+ 2038 PRINT AT 10,9; FLASH 1;"STOP THE TAPE"
  2039 PRINT AT 12,0;"    PRESS ANY KEY or button    "'"        to start level";AT 15,15; INK bf;l: GO SUB 710
  2040 GO TO 100
  5000 REM Draw level
@@ -286,8 +289,8 @@
  6030 PRINT AT r,c-1; FLASH 1; INK 8; PAPER 8; OVER 1;" "
  6040 LET k$=INKEY$
  6042 LET x=r: LET y=c
- 6044 IF k$="" THEN LET s=|(1,1): LET k$=".az-k..-l.."(s+1)
- 6046 IF k$="." THEN IF |(2,1) THEN LET k$=z$
+ 6044 IF k$="" THEN LET s= STICK (1,1): LET k$=".az-k..-l.."(s+1)
+ 6046 IF k$="." THEN IF STICK (2,1) THEN LET k$=z$
  6050 IF k$="a" THEN LET r=r-1+(21 AND r=1): GO TO 6100
  6052 IF k$="z" THEN LET r=r+1-(21 AND r=21): GO TO 6100
  6054 IF k$="l" THEN LET c=c+1-(32 AND c=32): GO TO 6100
@@ -373,15 +376,21 @@
  6830 GO TO 6018
  7000 IF q=0 THEN GO TO 7500
  7002 LET q=q-1: IF q=0 THEN GO TO 7500
- 7004 FOR a=1 TO 21: SOUND 11,a: NEXT a: SOUND 13,0
- 7006 GO SUB 660: SOUND 13,0
- 7020 INPUT "Replay, Next level, Quit? ";k$
+ 7004 SOUND 12,0
+ 7006 FOR a=1 TO 21: SOUND 11,a: NEXT a
+ 7008 SOUND 13,0
+ 7020 INPUT "Continue/Redo/Next/Quit? ";k$
  7022 PAUSE 30
+ 7024 IF k$="c" THEN GO TO 7040
+ 7026 GO SUB 660
  7030 IF k$="n" THEN GO TO 2010
- 7040 IF k$="q" THEN GO TO 7530
- 7042 IF k$="e" THEN GO TO 6000
- 7046 IF k$="r" AND NOT tr THEN LET ti=20*(CODE a$(22,3)-m)+20: GO TO 104
- 7048 GO TO 7020
+ 7032 IF k$="q" THEN GO TO 7530
+ 7034 IF k$="e" THEN GO TO 6000
+ 7036 IF k$="r" THEN GO TO 101
+ 7039 GO TO 7020
+ 7040 LET ti=tr+2
+ 7042 IF tr<=0 THEN LET ti=20*(CODE a$(22,3)-m)+20
+ 7049 GO TO 103
  7500 SOUND 8,15;9,15;7,39;6,0;12,50;13,0
  7502 FOR a=30 TO 0 STEP -4: SOUND 6,a: NEXT a
  7504 FOR a=0 TO 31: SOUND 6,a: NEXT a
@@ -504,60 +513,14 @@
  9048 LET o$(155)=CHR$ 7: REM \l Player, walk left
  9050 LET o$(156)=CHR$ 7: REM \m Player, stand left
  9052 LET o$(157)=CHR$ 7: REM \n Player, climb right
- 9054 LET o$(163)=CHR$ 5: REM SPECTRUM  Brick, diggable, play mode copy
- 9056 LET o$(164)=CHR$ 5: REM PLAY  Brick, fake, edit mode copy
- 9059 RETURN 
- 9098 REM UDG's
- 9099 REM \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s SPECTRUM PLAY 
- 9100 RESTORE 9160
- 9101 LET a=10: LET b=11
- 9102 LET c=12: LET d=13
- 9103 LET e=14: LET f=15
- 9109 SOUND 10,12;5,2
- 9110 LET g=USR "a"
- 9111 LET m=0
- 9112 READ k$
- 9113 FOR i=1 TO LEN k$-1 STEP 2
- 9114 LET j=PEEK g
- 9115 LET k=VAL k$(i)*16+VAL k$(i+1)
- 9116 IF j<>k THEN LET m=1
- 9117 POKE g,k: SOUND 4,k
- 9118 LET g=g+1
- 9119 NEXT i
- 9120 IF m=0 THEN GO TO 9150: REM Skip the rest
- 9130 FOR h=2 TO 21
- 9132 READ k$
- 9134 FOR i=1 TO LEN k$-1 STEP 2
- 9136 LET k=VAL k$(i)*16+VAL k$(i+1)
- 9138 POKE g,k: SOUND 4,k
- 9140 LET g=g+1
- 9142 NEXT i
- 9144 NEXT h
- 9150 SOUND 10,16;4,20;5,10
- 9152 RETURN 
- 9159 REM UDG data
- 9160 DATA "181810383C18181C"
- 9161 DATA "58584A3E18386406"
- 9162 DATA "FFCC3333CCCC3333"
- 9163 DATA "89802333CCCC3333"
- 9164 DATA "8800240188C43333"
- 9165 DATA "FFCC3333CCCC3333"
- 9166 DATA "8800220088002200"
- 9167 DATA "427E4242427E4242"
- 9168 DATA "181810385E186446"
- 9169 DATA "000000003C5E7E00"
- 9170 DATA "00FF000000000000"
- 9171 DATA "1818081C7A182662"
- 9172 DATA "1818081C3C181838"
- 9173 DATA "1A1A527C181C2660"
- 9174 DATA "FFFF181818181818"
- 9175 DATA "FFFF18181818FFFF"
- 9176 DATA "C3E7FFDBC3C3C3C3"
- 9177 DATA "FFFFC0FCFCC0FFFF"
- 9178 DATA "0018180000181800"
- 9179 DATA "FFCC3333CCCC3333"
- 9180 DATA "8888222288882222"
- 9989 STOP 
+ 9054 LET o$(158)=CHR$ 7: REM \o Player, dig left down
+ 9056 LET o$(159)=CHR$ 7: REM \p Player, dig left up
+ 9058 LET o$(160)=CHR$ 7: REM \q Player, dig right down
+ 9060 LET o$(161)=CHR$ 7: REM \r Player, dig right up
+ 9062 LET o$(162)=CHR$ 5: REM \s Dug dirt pile
+ 9064 LET o$(163)=CHR$ 5: REM \t Brick, diggable, play mode copy
+ 9066 LET o$(164)=CHR$ 5: REM \u Brick, fake, edit mode copy
+ 9069 RETURN 
  9990 CLEAR 
- 9992 SAVE "Thief" LINE 100
- 9994 RUN 100
+ 9992 SAVE "Thief" LINE 50
+ 9994 RUN 50
