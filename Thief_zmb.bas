@@ -63,7 +63,7 @@
 # differencing it with the current.
   105 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
   106 PRINT AT 0,0;"SCORE:";TAB 11;"LEVEL:";TAB 24;"TIME:"
-  107 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,20;"\a\a\a"( TO q);AT 0,29;ti
+  107 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,19;" \a\a\a"( TO q);AT 0,29;ti
   108 LET x=r: LET y=c: LET xd=d: LET z$="."
   109 LET p$=a$(r,c)
 # Top of main loop
@@ -255,7 +255,7 @@
   910 LOAD "" DATA A$()
   911 GO SUB 5200
   912 CLS 
-  915 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
+  915 PRINT AT 10,9; FLASH 1;"STOP THE TAPE"
   916 IF a$(22,32)=" " THEN GO SUB 5100
   920 LET q=3: LET sc=0: LET l=1
   930 GO TO 2039
@@ -272,7 +272,7 @@
  2032 IF a$(22,32)=" " THEN GO SUB 5100
  2035 LET l=l+1
  2037 CLS 
- 2038 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
+ 2038 PRINT AT 10,9; FLASH 1;"STOP THE TAPE"
  2039 PRINT AT 12,0;"    PRESS ANY KEY or button    "'"        to start level";AT 15,15; INK bf;l: GO SUB 710
  2040 GO TO 100
  5000 REM Draw level
@@ -447,8 +447,9 @@
 # Ran out of time playing level
  7000 IF q=0 THEN GO TO 7500
  7002 LET q=q-1: IF q=0 THEN GO TO 7500
- 7004 FOR a=1 TO 21: SOUND 11,a: NEXT a: SOUND 13,0
- 7006 GO SUB 660: SOUND 13,0
+ 7004 SOUND 12,0
+ 7006 FOR a=1 TO 21: SOUND 11,a: NEXT a
+ 7008 GO SUB 660: SOUND 13,0
  7020 INPUT "Replay, Next level, Quit? ";k$
  7022 PAUSE 30
  7030 IF k$="n" THEN GO TO 2010
@@ -586,11 +587,11 @@
  9048 LET o$(155)=CHR$ 7: REM \l Player, walk left
  9050 LET o$(156)=CHR$ 7: REM \m Player, stand left
  9052 LET o$(157)=CHR$ 7: REM \n Player, climb right
- 9054 LET o$(157)=CHR$ 7: REM \n Player, dig left down
- 9056 LET o$(157)=CHR$ 7: REM \n Player, dig left up
- 9058 LET o$(157)=CHR$ 7: REM \n Player, dig right down
- 9060 LET o$(157)=CHR$ 7: REM \n Player, dig right up
- 9062 LET o$(157)=CHR$ 5: REM \n Dug dirt pile
+ 9054 LET o$(158)=CHR$ 7: REM \o Player, dig left down
+ 9056 LET o$(159)=CHR$ 7: REM \p Player, dig left up
+ 9058 LET o$(160)=CHR$ 7: REM \q Player, dig right down
+ 9060 LET o$(161)=CHR$ 7: REM \r Player, dig right up
+ 9062 LET o$(162)=CHR$ 5: REM \s Dug dirt pile
  9064 LET o$(163)=CHR$ 5: REM \t Brick, diggable, play mode copy
  9066 LET o$(164)=CHR$ 5: REM \u Brick, fake, edit mode copy
  9069 RETURN 
@@ -662,7 +663,7 @@
  9176 DATA "0C0C1838381C2A2B"
 # \r Player dig right up
  9177 DATA "1819133C38182828"
-# \s Dig dirt pile
+# \s Dug dirt pile
  9178 DATA "8800220088142A55"
 # \t Brick solid duplicate
  9179 DATA "FFCC3333CCCC3333"
@@ -670,5 +671,5 @@
  9180 DATA "8888222288882222"
  9989 STOP 
  9990 CLEAR 
- 9992 SAVE "Thief" LINE 100
- 9994 RUN 100
+ 9992 SAVE "Thief" LINE 50
+ 9994 RUN 50
