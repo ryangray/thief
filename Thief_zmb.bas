@@ -160,33 +160,36 @@
   408 IF a$(r+1,c+1)="\g" THEN GO TO 420: REM Dug
   410 PRINT AT r+1,c; INK 8;"\d"; AT r,c-1;"\q": BEEP .01,0: PAUSE 10
   412 PRINT AT r+1,c; INK 8;"\e"; AT r,c-1;"\r": BEEP .01,0: PAUSE 10
-  414 PRINT AT r+1,c; INK 8;"\g"; AT r,c-1;"\q": BEEP .01,0: LET a$(r+1,c+1)="\g"
-  416 RETURN 
+  414 PRINT AT r+1,c; INK 8;"\g"; AT r,c-1;"\q": BEEP .01,0
+  416 LET a$(r+1,c+1)="\g"
+  418 RETURN 
 # Fill right
 # This has the same criteria as dig, except the block has to be \g which we already checked above,
 # so we don't have to do those checks here. We do require solid below to fill.
   420 IF r<21 AND NOT FN s(a$(r+2,c+1)) THEN RETURN : REM No support below
   422 PRINT AT r+1,c; INK 8;"\e"; AT r,c-1;"\q": BEEP .01,0: PAUSE 10
   424 PRINT AT r+1,c; INK 8;"\d"; AT r,c-1;"\r": BEEP .01,0: PAUSE 10
-  426 PRINT AT r+1,c; INK 8;"\c"; AT r,c-1;"\q": BEEP .01,0: LET a$(r+1,c+1)="\c"
-  428 RETURN 
+  426 PRINT AT r+1,c; INK 8;"\c"; AT r,c-1;"\q": BEEP .01,0
+  428 LET a$(r+1,c+1)="\c"
+  429 RETURN 
 # Dig left
-  430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR R=21 THEN RETURN 
+  430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR r=21 THEN RETURN 
   432 IF NOT FN o(a$(r,c-1)) THEN RETURN 
 #  434 IF NOT FN s(a$(r+1,c)) THEN RETURN 
   436 IF b$(r+1,c-1)<>"\c" THEN RETURN 
   438 IF a$(r+1,c-1)="\g" THEN GO TO 450
   440 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
   442 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
-  444 PRINT AT r+1,c-2; INK 8;"\g"; AT r,c-1;"\o": BEEP .01,0: LET a$(r+1,c-1)="\g"
-  446 RETURN 
+  444 PRINT AT r+1,c-2; INK 8;"\g"; AT r,c-1;"\o": BEEP .01,0
+  446 LET a$(r+1,c-1)="\g"
+  448 RETURN 
 # Fill left
-  450 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 THEN RETURN 
-  452 IF NOT FN o(a$(r,c-1)) OR a$(r+1,c-1)<>"\g" OR b$(r+1,c-1)<>"\c" OR (r<21 AND NOT FN s(a$(r+2,c-1))) THEN RETURN 
-  454 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
-  455 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
-  456 PRINT AT r+1,c-2; INK 8;"\c"; AT r,c-1;"\o": BEEP .01,0: LET a$(r+1,c-1)="\c"
-  458 RETURN 
+  450 IF r<21 AND NOT FN s(a$(r+2,c-1)) THEN RETURN 
+  452 PRINT AT r+1,c-2; INK 8;"\e"; AT r,c-1;"\o": BEEP .01,0: PAUSE 10
+  454 PRINT AT r+1,c-2; INK 8;"\d"; AT r,c-1;"\p": BEEP .01,0: PAUSE 10
+  456 PRINT AT r+1,c-2; INK 8;"\c"; AT r,c-1;"\o": BEEP .01,0
+  458 LET a$(r+1,c-1)="\c"
+  459 RETURN 
 # Main menu
   500 SOUND 0,0;1,10;2,10;3,10;4,20;5,10;6,0;7,56;8,16;9,16;10,16;12,30;13,14
   502 GO SUB 8500: REM Draw top of title screen
