@@ -27,26 +27,36 @@ that led to starting to improve the game.
 
 [QuickFont]: https://github.com/ryangray/quickfont
 
+After working on it some more, I came across articles that talked about the
+"DEFADD trick", and I added it to be able to finally make a color version since
+the overhead of setting the color was too slow before. I also used it to speed
+up saving and restoring a copy of the level. I also applied some other
+improvements to speed up the game play.
+
 ## Game Play
 
 You play against the clock on each level, which gives you an amount of time 
 based on the number of treasures to collect on each level. You can move and
 climb around. Falling won't kill you. In fact, the only things that will are
 the time running out before collecting all the treasures and pressing `d` when
-you get stuck in a hole to start again. You get points for each treasure, but 
-there are no bonuses. 
+you get stuck to start again. You get points for each treasure, and you get a
+bonus for the time remaining when you complete a level. You can press `x` and
+`c` to jump up and over one space to perhaps get out of a hole.
 
 There are ladders and overhead bars that you can use to climb. You can jump off
-overhead bars by moving down. There are some "brick" parts that you can move or 
-fall through which look just like normal bricks.
+them by moving down. There are some fake bricks that you can move or fall 
+through which look just like normal bricks.
 
 To get to some treasures, you have to dig down (`n` and `m`) keys. You need to
 think about how many spaces to dig at the top level first before jumping down 
 since you can only dig the space to your left or right, so you need at least two
 spaces to jump down into. The exception would be if the treasure were the last 
 one on the level, you could jump down into the single-space pit it resides in.
-You can also fill in holes you've dug using the `x` and `c` keys, perhaps to aid
-getting to the next treasure.
+You can also fill in holes you've dug using the same keys. There are some rules
+about where you can and can't dig or fill.
+
+You can choose key help and game help from the main screen to learn more. The
+Timex joystick is also supported for the left port.
 
 
 ## Keys
@@ -57,12 +67,14 @@ The keys (which the program neglects to tell you) are:
     z - move down/drop
     k - move left
     l - move right
-    n - dig left
-    m - dig right
-    c - fill hole left, face left
-    x - fill hold right, face right
+    n - dig/fill left
+    m - dig/fill right
+    c - jump left
+    x - jump right
     d - die (when you get trapped)
 
+You can also press `d` to simply move to the next level or redo the current
+level, but at the cost of one life.
 
 ## Levels
 
@@ -83,19 +95,22 @@ save it to tape. You can also load an existing level from tape to start with.
 ### Level Editor Keys
 
     a - move up
-    z - move down/drop
+    z - move down
     k - move left
     l - move right
     1 - Place textured brick
-    2 - Place fake brick (shows as grey block in editor)
-    3 - Place solid brick
-    4 - Place ladder
-    5 - Set player start location
-    6 - Place treasure
-    7 - Place overhead bar
+    2 - Place fake brick (sppears different in editor)
+    3 - Place passage brick
+    4 - Place solid brick
+    5 - Place ladder
+    6 - Place overhead bar
+    7 - Place treasure
+    8 - Set player start location 
     space - Clear cell
     g - Get (load) a level
     s - Save a level
+    x - Exit without save (can play and go back to editing)
+    n - Set level name
 
 After saving the level, it will ask if you want to edit another. If you don't,
 then it asks if you want to play the level. It doesn't let you go back to 
@@ -103,5 +118,6 @@ editing after that though.
 
 ### Level Data Storage
 
-The level is stored as a string array, `a$`, with dimensions of 22 rows and 32
-columns. The last row is where level info is stored.
+The level is stored as a string array, `a$`, with dimensions of 43 rows and 32
+columns. Row 22 is where level info is stored, and rows 23 through 43 are the
+color info for the cells.
