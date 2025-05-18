@@ -270,7 +270,9 @@
  2012 LET sc=sc+tr: REM Bonus for time
  2014 PRINT AT 8,11; INK bf;"Bonus: ";tr
  2020 PRINT AT 10,0;"     Prepare the tape for"'"        the next level"
- 2022 GO SUB 700
+ 2022 PRINT '"   or press R to replay level"
+ 2024 GO SUB 700
+ 2026 IF INKEY$="r" THEN GO SUB 660: GO TO 101
  2030 LOAD "" DATA A$()
  2031 GO SUB 5200
  2032 IF a$(22,32)=" " THEN GO SUB 5100
