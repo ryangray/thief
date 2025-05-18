@@ -38,14 +38,14 @@
 # Same SOUND setup found at 502 on autorun, so must be here in case you just use RUN
 # Enable A B C for tone with max volume and starting tones. 
 # The UDG loader will vary the tones with the data loaded, then the menu display changes the sound
-    5 DEF FN x(x$)=PEEK 23563+256*PEEK 23564: REM DEFADD reusable
-    6 DEF FN v(x$)=PEEK (FN x(x$)+4)+256*PEEK (FN x(x$)+5): REM addr of x$
-    7 DEF FN d(x$,y$)=PEEK 23563+256*PEEK 23564: REM DEFADD for copying a$ to ATTRIBs
-    8 DEF FN a(r,c)=22528+r*32+c-1: REM attrib mem location of a$(r,c) on screen
-    9 DEF FN c(c$)=CODE o$(CODE c$)+bg*8: REM attrib for char
-   10 DEF FN b(a$,b$)=PEEK 23563+256*PEEK 23564: REM DEFADD for copying a$ to b$ and back
-   11 DEF FN s(a$)=(a$="\::" OR a$="\c"): REM is block "solid"
-   12 DEF FN o(a$)=(a$=" " OR a$="\g" OR a$="\k"): REM is block "open"
+    5 DEF FN s(a$)=(a$="\::" OR a$="\c"): REM is block "solid"
+    6 DEF FN o(a$)=(a$=" " OR a$="\g" OR a$="\k"): REM is block "open"
+    7 DEF FN x(x$)=PEEK 23563+256*PEEK 23564: REM DEFADD reusable
+    8 DEF FN v(x$)=PEEK (FN x(x$)+4)+256*PEEK (FN x(x$)+5): REM addr of x$
+    9 DEF FN d(x$,y$)=PEEK 23563+256*PEEK 23564: REM DEFADD for copying a$ to ATTRIBs
+   10 DEF FN a(r,c)=22528+r*32+c-1: REM attrib mem location of a$(r,c) on screen
+   11 DEF FN c(c$)=CODE o$(CODE c$)+bg*8: REM attrib for char
+   12 DEF FN b(a$,b$)=PEEK 23563+256*PEEK 23564: REM DEFADD for copying a$ to b$ and back
    13 DEF FN i$(c$)=CHR$ 16+o$(CODE c$)+c$: REM PRINT FN i$(c$)
    40 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 0: CLS 
    42 GO SUB 9000: REM init
