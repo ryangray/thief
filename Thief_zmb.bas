@@ -46,6 +46,7 @@
    10 DEF FN b(a$,b$)=PEEK 23563+256*PEEK 23564: REM DEFADD for copying a$ to b$ and back
    11 DEF FN s(a$)=(a$="\::" OR a$="\c"): REM is block "solid"
    12 DEF FN o(a$)=(a$=" " OR a$="\g" OR a$="\k"): REM is block "open"
+   13 DEF FN i$(c$)=CHR$ 16+o$(CODE c$)+c$: REM PRINT FN i$(c$)
    40 INK 0: PAPER 7: FLASH 0: BRIGHT 0: OVER 0: INVERSE 0: BORDER 0: CLS 
    42 GO SUB 9000: REM init
    44 GO TO 500: REM Main menu
@@ -341,14 +342,14 @@
  6018 GO SUB 5000: PRINT AT 0,0; INVERSE 1;"N"; INVERSE 0;"ame: ";t$;TAB 31;" "
  6019 LET r=m1: LET c=m2: LET m=0: LET m$="": LET z$="."
  6020 INPUT ""
- 6021 PRINT #0;"1"; INK CODE o$(CODE "\c");"\c";
- 6022 PRINT #0;"2"; INK CODE o$(CODE "\u");"\u";
- 6023 PRINT #0;"3"; INK CODE o$(CODE "\g");"\g";
- 6024 PRINT #0;"4"; INK CODE o$(CODE "\::");"\::";
- 6025 PRINT #0;"5"; INK CODE o$(CODE "\h");"\h";
- 6026 PRINT #0;"6"; INK CODE o$(CODE "\k");"\k";
- 6027 PRINT #0;"7"; INK CODE o$(CODE "\j");"\j";
- 6028 PRINT #0;"8"; INK CODE o$(CODE "\i");"\i";
+ 6021 PRINT #0;"1"; FN i$("\c");
+ 6022 PRINT #0;"2"; FN i$("\u");
+ 6023 PRINT #0;"3"; FN i$("\g");
+ 6024 PRINT #0;"4"; FN i$("\::");
+ 6025 PRINT #0;"5"; FN i$("\h");
+ 6026 PRINT #0;"6"; FN i$("\k");
+ 6027 PRINT #0;"7"; FN i$("\j");
+ 6028 PRINT #0;"8"; FN i$("\i");
  6029 PRINT #0;" spc  "; INVERSE 1;"S"; INVERSE 0;"ave "; INVERSE 1;"G"; INVERSE 0;"et "; INVERSE 1;"X"
  6030 PRINT AT r,c-1; FLASH 1; INK 8; PAPER 8; OVER 1;" "
  6040 LET k$=INKEY$
@@ -490,15 +491,15 @@
 # Game Help 
  8100 INK fg: PAPER bg: BORDER bg: CLS 
  8110 PRINT INK 7; PAPER 1; BRIGHT 1;" Thief Game Help "''
- 8120 PRINT INK CODE o$(CODE "\i");"\a \i \n"; INK fg;" You    ";
- 8122 PRINT INK CODE o$(CODE "\j");"\j"; INK fg;" Treasure"
+ 8120 PRINT FN i$("\a");" \i \n"; INK fg;" You    ";
+ 8122 PRINT FN i$("\j"); INK fg;" Treasure"
  8124 PRINT "               (10 points)"''
- 8126 PRINT INK CODE o$(CODE "\k");"\k"; INK fg;" Overhead bar"
- 8128 PRINT INK CODE o$(CODE "\h");"\h"; INK fg;" Ladder"
- 8130 PRINT INK CODE o$(CODE "\t");"\t"; INK fg;" Diggable Floor"
- 8132 PRINT INK CODE o$(CODE "\::");"\::"; INK fg;" Solid Floor"
- 8134 PRINT INK CODE o$(CODE "\u");"\u"; INK fg;" False floor (edit mode)"
- 8136 PRINT INK CODE o$(CODE "\g");"\g"; INK fg;" Passage or dug out floor"
+ 8126 PRINT FN i$("\k"); INK fg;" Overhead bar"
+ 8128 PRINT FN i$("\h"); INK fg;" Ladder"
+ 8130 PRINT FN i$("\t"); INK fg;" Diggable Floor"
+ 8132 PRINT FN i$("\::"); INK fg;" Solid Floor"
+ 8134 PRINT FN i$("\u"); INK fg;" False floor (edit mode)"
+ 8136 PRINT FN i$("\g"); INK fg;" Passage or dug out floor"
  8140 PRINT '"Walk left/right on floors and"
  8142 PRINT "through passages, climb ladders"
  8144 PRINT "or bars, dig the floor (don't"
@@ -516,14 +517,14 @@
  8212 PRINT "cursor. Keys 1-7 and space sets"
  8214 PRINT "block & moves in last direction."
  8216 PRINT "Button repeats last block."
- 8220 PRINT '"1 "; INK CODE o$(CODE "\c");"\c"; INK fg;" - Diggable floor"
- 8222 PRINT "2 "; INK CODE o$(CODE "\u");"\u"; INK fg;" - False floor"
- 8224 PRINT "3 "; INK CODE o$(CODE "\g");"\g"; INK fg;" - Passage"
- 8226 PRINT "4 "; INK CODE o$(CODE "\::");"\::"; INK fg;" - Solid floor"
- 8228 PRINT "5 "; INK CODE o$(CODE "\h");"\h"; INK fg;" - Ladder"
- 8230 PRINT "6 "; INK CODE o$(CODE "\k");"\k"; INK fg;" - Overhead bar"
- 8232 PRINT "7 "; INK CODE o$(CODE "\j");"\j"; INK fg;" - Treasure"
- 8240 PRINT "8 "; INK CODE o$(CODE "\i");"\i"; INK fg;" - Set the player start."
+ 8220 PRINT '"1 "; FN i$("\c"); INK fg;" - Diggable floor"
+ 8222 PRINT "2 "; FN i$("\u"); INK fg;" - False floor"
+ 8224 PRINT "3 "; FN i$("\g"); INK fg;" - Passage"
+ 8226 PRINT "4 "; FN i$("\::"); INK fg;" - Solid floor"
+ 8228 PRINT "5 "; FN i$("\h"); INK fg;" - Ladder"
+ 8230 PRINT "6 "; FN i$("\k"); INK fg;" - Overhead bar"
+ 8232 PRINT "7 "; FN i$("\j"); INK fg;" - Treasure"
+ 8240 PRINT "8 "; FN i$("\i"); INK fg;" - Set the player start."
  8242 PRINT "      You can set the player at"
  8244 PRINT "      any walkable location"
  8246 PRINT "      except for a treasure."
