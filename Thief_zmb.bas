@@ -18,7 +18,6 @@
 # te - Current time elapsed for level
 # ti - Time alloted to finish level
 # x  - Previous row of player
-# xd - Previous player direction
 # y  - Previous col of player
 # z  - Loops
 # a$ - Active game level content array (changes)
@@ -67,7 +66,7 @@
   105 SOUND 0,0;1,10;2,2;3,10;4,4;5,10;6,0;7,56;8,16;9,16;10,16;11,24;12,ti;13,14
   106 PRINT AT 0,0;"SCORE:";TAB 11;"LEVEL:";TAB 24;"TIME:"
   107 PRINT INK bf;AT 0,6;sc;AT 0,17;l;AT 0,19;" \a\a\a"( TO q);AT 0,29;ti
-  108 LET x=r: LET y=c: LET xd=d: LET z$="."
+  108 LET x=r: LET y=c: LET z$="."
   109 LET p$=a$(r,c)
 # Top of main loop
   120 LET m$="\m\a\l\i"(d): LET n$=a$(r+1,c)
@@ -101,7 +100,7 @@
   143 LET p$=n$: LET n$=a$(r+1,c)
   144 GO TO 130
   145 LET k$=INKEY$
-  150 LET x=r: LET y=c: LET d=xd-(2 AND xd>2)
+  150 LET x=r: LET y=c
   151 IF k$="" THEN LET s= STICK (1,1): LET n= STICK (2,1): LET k$=".az-k..-l...D.-Kxn-Lcm"(s+1+11*n): IF z$="D" AND k$="a" THEN LET k$="d"
   152 LET z$=k$
   153 IF k$="z" THEN IF r<21 THEN IF NOT FN s(a$(r+1,c)) THEN GO SUB 240: GO TO 166
@@ -119,7 +118,6 @@
 # If got a treasure, score it and check it its the last one
   166 LET p$=a$(r,c)
   167 IF p$="\j" THEN LET sc=sc+10: BEEP .01,10: BEEP .04,20: LET a$(r,c)=" ": LET p$=" ": LET a$(r+22,c)=CHR$ FN c(" "): LET m=m+1: PRINT AT 0,6; INK bf;sc: IF m=CODE a$(22,3) THEN GO TO 2000
-  168 LET xd=d
 # End of main loop
   170 GO TO 120
   190 PAUSE 30
@@ -156,7 +154,7 @@
   243 POKE FN a(x,y),CODE a$(x+22,y)
   244 RETURN 
 # Dig right
-  400 PRINT AT r,c-1;"\i": LET d=2: LET xd=d: IF c=32 OR r=21 THEN RETURN 
+  400 PRINT AT r,c-1;"\i": LET d=2: IF c=32 OR r=21 THEN RETURN 
   402 IF NOT FN o(a$(r,c+1)) THEN RETURN : REM Not open above dig spot
 # 404 IF NOT FN s(a$(r+1,c)) THEN RETURN : REM Not solid below us [Makes Vault pile impossible]
   406 IF b$(r+1,c+1)<>"\c" THEN RETURN : REM Not diggable
@@ -176,7 +174,7 @@
   428 LET a$(r+1,c+1)="\c"
   429 RETURN 
 # Dig left
-  430 PRINT AT r,c-1;"\l": LET d=1: LET xd=d: IF c=1 OR r=21 THEN RETURN 
+  430 PRINT AT r,c-1;"\l": LET d=1: IF c=1 OR r=21 THEN RETURN 
   432 IF NOT FN o(a$(r,c-1)) THEN RETURN 
 #  434 IF NOT FN s(a$(r+1,c)) THEN RETURN 
   436 IF b$(r+1,c-1)<>"\c" THEN RETURN 
