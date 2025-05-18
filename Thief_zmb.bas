@@ -253,7 +253,7 @@
   720 INPUT "": RETURN 
 # Load first level
   900 BORDER bg: PAPER bg: INK fg: CLS 
-  902 PRINT AT 10,0;"  Press a key or button when"'"   ready to load the first"'"       level from tape"
+  902 PRINT AT 10,0;"     Press a key or button"'"     when ready to load the"'"     first level from tape"
   904 PAUSE 20
   906 GO SUB 710
   910 LOAD "" DATA A$()
@@ -328,9 +328,8 @@
  6004 INPUT "New";", Current," AND l;" or Load ? ";k$
  6005 PRINT AT 0,0; INK fg; PAPER bg;"SCORE:xxxx LEVEL:xx \m\m\m TIME:xxx"
  6006 IF k$="c" THEN GO SUB 660: GO TO 6016
- 6007 IF k$="n" THEN GO TO 6010
- 6008 IF k$="l" THEN GO TO 6400
- 6009 GO TO 6004
+ 6007 IF k$="l" THEN GO TO 6400
+ 6008 IF k$<>"n" THEN GO TO 6004
 # Fill out a new empty level
  6010 DIM a$(43,32): LET m1=10: LET a$(22,1)=CHR$ m1: LET m2=15: LET a$(22,2)=CHR$ m2: LET a$(22,32)="2": LET t$=""
  6011 PRINT AT m1,m2-1; FLASH 1;"\m": PRINT #0;"Wait...": LET n$=CHR$ FN c(" ")
@@ -420,11 +419,11 @@
  6400 INPUT "Name (STOP=cancel):";f$: IF f$=CHR$ 226 THEN GO TO 6020
  6410 PRINT AT 10,10;"Loading..."
  6420 LOAD f$ DATA a$()
- 6422 IF f$="" THEN GO SUB 5200
- 6424 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
- 6426 IF a$(22,32)=" " THEN GO SUB 5100
- 6428 DIM b$(43,32): GO SUB 650
- 6430 GO TO 6016: REM Start editing
+ 6430 IF f$="" THEN GO SUB 5200
+ 6440 PRINT AT 10,10; FLASH 1;"STOP THE TAPE"
+ 6450 IF a$(22,32)=" " THEN GO SUB 5100
+ 6460 DIM b$(43,32): GO SUB 650
+ 6470 GO TO 6016: REM Start editing
 # Make solid brick checkerboard for editing
  6500 REM Level edit mode brick is checkerboard
  6510 LET b=USR "u"
