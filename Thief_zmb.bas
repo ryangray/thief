@@ -335,8 +335,8 @@
  6011 PRINT AT m1,m2-1; FLASH 1;"\m": PRINT #0;"Wait...": LET n$=CHR$ FN c(" ")
  6012 FOR b=1 TO 32: LET a$(23,b)=n$: NEXT b
  6013 FOR a=2 TO 21: LET a$(22+a)=a$(23): NEXT a
- 6014 INPUT ""
- 6015 GO TO 6019
+ 6014 DIM b$(43,32): GO SUB 650
+ 6015 INPUT "": GO TO 6019
  6016 REM Edit current level
  6018 GO SUB 5000: PRINT AT 0,0; INVERSE 1;"N"; INVERSE 0;"ame: ";t$;TAB 31;" "
  6019 LET r=m1: LET c=m2: LET m=0: LET m$="": LET z$="."
